@@ -1,0 +1,10 @@
+
+spark = [ box:rz45 ]:ry45 ^ 8
+
+head = spark & tail
+tail = head :s0.9 :tx3 :rz-40 :ry10 :cr 0.8
+tail = head :s0.9 :tx4 :rz-30 :ry20 :cg 0.8
+tail = head :s0.9 :tx5 :rz-20 :ry30 :cb 0.8
+
+$ = head 
+

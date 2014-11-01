@@ -1,0 +1,6 @@
+A = box:s 3/4:cg 0:cb 0:ty 1
+B = box:s 3/4:cr 0:cb 0
+C = box:s 3/4:cr 0:cg 0:ty -1
+
+$ = [ A & B:rz 15 ]:tx -1 & [[ A & B]:rz 15]:tx 1
+

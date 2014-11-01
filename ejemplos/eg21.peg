@@ -1,0 +1,4 @@
+spiral = ball & spiral:tx 1:rz 15:s 0.9
+
+$ = spiral:d 25
+

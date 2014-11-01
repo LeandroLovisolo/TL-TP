@@ -1,0 +1,10 @@
+
+balloon = ball:cg0:cb0:sx0.9:sz0.9                  "el globo"
+        & ball:cg0:cb0:s0.04:ty-0.52                "el nudo"
+        & box:cg0:cb0:s0.03:rz45:rx45:ty-0.56       "el pico"
+        & line:ty-0.56:d10                          "el hilo"
+
+line = box:sx0.01:sy0.1:sz0.01:ty-0.05 & [ line:rz10:ty-0.1 | line:rz-10:ty-0.1 ]
+
+$ = balloon
+

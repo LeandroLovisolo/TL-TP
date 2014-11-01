@@ -1,0 +1,5 @@
+ejes = box:sy0.05:sz0.05:cg0:cb0:tx0.5
+     & box:sx0.05:sz0.05:cg0:cb0:ty0.5
+     & box:sx0.05:sy0.05:cg0:cb0:tz0.5
+
+$ = [ ejes & box : cb 0.5 : ry 360/8 : tz -1 ]:ry -30:rx 30

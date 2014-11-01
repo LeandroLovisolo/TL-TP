@@ -1,0 +1,10 @@
+
+$ = arbol :d9
+
+arbol   = tronco & copa :ty 1
+tronco  = box :cr 0.6 :cg 0.5 :cb 0.1 :sx 0.1 :sz 0.1 :ty 0.5
+copa    = [ < arbol :s 0.7 :rz 30 :cg 0.9> ] :ry 60 ^ 6
+copa    = [ < arbol :s 0.7 :rz 30 :cg 0.7> ] :ry 60 ^ 6
+copa    = [ < arbol :s 0.7 :rz 30 :cg 1.2> ] :ry 60 ^ 6
+copa.   = ball :cr 0.1 :cb 0.1 :s 2 :ty 1
+
