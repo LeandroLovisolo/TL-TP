@@ -3,3 +3,7 @@
 
 # Vim
 *.swp
+
+# Parser
+src/parsetab.py
+src/parser.out

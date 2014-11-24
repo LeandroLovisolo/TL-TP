@@ -4,21 +4,27 @@
 
 import argparse
 import sys
-from lexer import Lexer
 from ply.lex import LexError
+from lexer import Lexer
+from parser import Parser
 
 def parse(path):
   f = open(path)
   input = ''.join(f.readlines())
   f.close()
 
-  lexer = Lexer(input)
-
   try:
-    for tok in lexer.lexer:
-      print tok
+    parser = Parser(input)
   except LexError:
     sys.exit(-1)
+
+  # lexer = Lexer(input)
+  # lexer.lex()
+  # try:
+  #   for tok in lexer.lexer:
+  #     print tok
+  # except LexError:
+  #   sys.exit(-1)
 
 if __name__ == '__main__':
   parser = argparse.ArgumentParser()
