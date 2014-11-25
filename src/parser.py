@@ -2,6 +2,7 @@
 
 from ply import yacc
 from lexer import Lexer
+import rule
 
 class Parser:
 
@@ -11,7 +12,7 @@ class Parser:
     ('left',  'PLUS',  'MINUS'),
     ('left',  'TIMES', 'DIVIDE'),
     ('right', 'UPLUS', 'UMINUS'),
-    # ('left',  'AND'),
+    ('left',  'AND'),
     # ('left',  'OR'),
     # ('left',  'POWER'),
     # ('left',  'RGROUP'),
@@ -22,55 +23,64 @@ class Parser:
   def p_rules(self, t):
     '''rules : rule_definition rules
              | empty'''
+    if t[1] is not None:
+      self.rules.append(t[1])
 
   def p_rule_definition(self, t):
     '''rule_definition : RULE       EQUALS element
                        | RULE DOT   EQUALS element
                        | START_RULE EQUALS element'''
     if t[1] == '$':
-      self.rules.append(('START_RULE', t[3]))
+      t[0] = rule.StartRule(t[3])
     elif t[2] == '.':
-      self.rules.append(('FINAL_RULE', t[1], t[4]))
+      t[0] = rule.FinalRule(t[1], t[4])
     else:
-      self.rules.append(('RULE', t[1], t[3]))
+      t[0] = rule.Rule(t[1], t[3])
 
   def p_element(self, t):
     '''element : primitive
-               | RULE
-               | element transform
-               | element AND     element
-               | element OR      element
-               | element POWER   arith_expr
-               | LGROUP  element RGROUP
-               | LOPT    element ROPT'''
-    if len(t) == 4:
-      if t[2] in ['&', '|', '^']:
-        t[0] = (t[2], t[1], t[3])
-      elif t[1] == '<':
-        t[0] = ('OPTIONAL', t[2])
-      else:
-        t[0] = t[2]
-    elif len(t) == 3:
-      t[0] = ('TRANSFORM', t[1], t[2])
-    else:
-      if type(t[1]) == tuple:
-        t[0] = t[1] # primitive
-      else:
-        t[0] = ('USE_RULE', t[1])
+               | rule
+               | transform
+               | element_and
+               | element_or
+               | element_power
+               | element_group
+               | element_optional'''
+    t[0] = t[1]
 
   def p_primitive(self, t):
     '''primitive : BOX
                  | BALL
                  | UNDERSCORE'''
-    t[0] = ('PRIMITIVE', t[1])
+    primitives = {'box'  : rule.Box,
+                  'ball' : rule.Ball,
+                  '_'    : rule.Underscore}
+    t[0] = primitives[t[1]]()
+
+  def p_rule(self, t):
+    'rule : RULE'
+    t[0] = rule.RuleElement(t[1])
 
   def p_transform(self, t):
-    '''transform : COLON transform_name arith_expr transform
-                 | empty'''
-    if t[1] is None:
-      t[0] = []
-    else:
-      t[0] = [(t[2], t[3])] + t[4]
+    'transform : element COLON transform_name arith_expr'
+    transforms = {'rx' : rule.RX,
+                  'ry' : rule.RY,
+                  'rz' : rule.RZ,
+                  'sx' : rule.SX,
+                  'sy' : rule.SY,
+                  'sz' : rule.SZ,
+                  's'  : rule.S,
+                  'tx' : rule.TX,
+                  'ty' : rule.TY,
+                  'tz' : rule.TZ,
+                  'cr' : rule.CR,
+                  'cg' : rule.CG,
+                  'cb' : rule.CB,
+                  'd'  : rule.D}
+    element = t[1]
+    transform_name = t[3]
+    param = t[4]
+    t[0] = transforms[transform_name](element, param)
 
   def p_transform_name(self, t):
     '''transform_name : RX
@@ -89,25 +99,70 @@ class Parser:
                       | D'''
     t[0] = t[1]
 
-  def p_arith_expr(self, t):
-    '''arith_expr : NUMBER
-                  | PLUS       arith_expr            %prec UPLUS
-                  | MINUS      arith_expr            %prec UMINUS
-                  | LPAREN     arith_expr RPAREN
-                  | arith_expr PLUS       arith_expr
-                  | arith_expr MINUS      arith_expr
-                  | arith_expr TIMES      arith_expr
-                  | arith_expr DIVIDE     arith_expr'''
+  def p_element_and(self, t):
+    'element_and : element AND element'
+    t[0] = rule.And(t[1], t[3])
 
-    if len(t) == 2:
-      t[0] = ('NUMBER', t[1])
-    elif len(t) == 3:
-      t[0] = ('UPLUS' if t[1] == '+' else 'UMINUS', t[2])
-    else:
-      if t[1] == '(':
-        t[0] = t[2]
-      else:
-        t[0] = (t[2], t[1], t[3])
+  def p_element_or(self, t):
+    'element_or : element OR element'
+    t[0] = rule.Or(t[1], t[3])
+
+  def p_element_power(self, t):
+    'element_power : element POWER arith_expr'
+    t[0] = rule.Power(t[1], t[3])
+
+  def p_element_group(self, t):
+    'element_group : LGROUP element RGROUP'
+    t[0] = rule.Group(t[2])
+
+  def p_element_optional(self, t):
+    'element_optional : LOPT element ROPT'
+    t[0] = rule.Optional(t[2])
+
+  def p_arith_expr(self, t):
+    '''arith_expr : arith_expr_number
+                  | arith_expr_uplus
+                  | arith_expr_uminus
+                  | arith_expr_parenthesis
+                  | arith_expr_plus
+                  | arith_expr_minus
+                  | arith_expr_times
+                  | arith_expr_divide'''
+    t[0] = t[1]
+
+  def p_arith_expr_number(self, t):
+    'arith_expr_number : NUMBER'
+    t[0] = rule.Number(t[1])
+
+  def p_arith_expr_uplus(self, t):
+    'arith_expr_uplus : PLUS arith_expr %prec UPLUS'
+    t[0] = rule.UPlus(t[2])
+
+  def p_arith_expr_uminus(self, t):
+    'arith_expr_uminus : MINUS arith_expr %prec UMINUS'
+    t[0] = rule.UMinus(t[2])
+
+  def p_arith_expr_parenthesis(self, t):
+    'arith_expr_parenthesis : LPAREN arith_expr RPAREN'
+    t[0] = rule.Parenthesis(t[2])
+
+  def p_arith_expr_plus(self, t):
+    'arith_expr_plus : arith_expr PLUS arith_expr'
+    t[0] = rule.Plus(t[1], t[3])
+
+  def p_arith_expr_minus(self, t):
+    'arith_expr_minus : arith_expr MINUS arith_expr'
+    t[0] = rule.Minus(t[1], t[3])
+
+  def p_arith_expr_times(self, t):
+    'arith_expr_times : arith_expr TIMES arith_expr'
+    t[0] = rule.Times(t[1], t[3])
+
+  def p_arith_expr_divide(self, t):
+    'arith_expr_divide : arith_expr DIVIDE arith_expr'
+    t[0] = rule.Divide(t[1], t[3])
+
+  #############################################################################
 
   def p_empty(self, t):
     'empty :'
@@ -119,55 +174,15 @@ class Parser:
     print self.input.split('\n')[line - 1]
     print ' ' * (column - 1) + '↑'
 
-  def print_rule(self, rule, l=0):
+  def print_node(self, node, l=0):
     import sys
     sys.stdout.write('  ' * l)
 
-    if rule[0] == 'START_RULE':
-      print 'START_RULE:'
-      self.print_rule(rule[1], l+1)
-
-    elif rule[0] in ['RULE', 'FINAL_RULE']:
-      print '%s %s:' % (rule[0], rule[1])
-      self.print_rule(rule[2], l+1)
-
-    elif rule[0] in ['PRIMITIVE', 'USE_RULE']:
-      print '%s: %s' % (rule[0], rule[1])
-
-    elif rule[0] in ['&', '|', '^']:
-      print '%s:' % rule[0]
-      self.print_rule(rule[1], l+1)
-      self.print_rule(rule[2], l+1)
-
-    elif rule[0] == 'OPTIONAL':
-      print 'OPTIONAL:'
-      self.print_rule(rule[1], l+1)
-
-    elif rule[0] == 'TRANSFORM':
-      print 'TRANSFORM:'
-      self.print_rule(rule[1], l+1)
-      for transform in rule[2]:
-        self.print_rule(transform, l+1)
-
-    elif rule[0] in ['rx', 'ry', 'rz', 'sx', 'sy', 'sz', 's',
-                     'tx', 'ty', 'tz', 'cr', 'cg', 'cb', 'd']:
-      print '%s:' % rule[0]
-      self.print_rule(rule[1], l+1)
-
-    elif rule[0] == 'NUMBER':
-      print 'NUMBER: %s' % rule[1]
-
-    elif rule[0] in ['UPLUS', 'UMINUS']:
-      print '%s:' % rule[0]
-      self.print_rule(rule[1], l+1)
-
-    elif rule[0] in ['+', '-', '*', '/']:
-      print '%s:' % rule[0]
-      self.print_rule(rule[1], l+1)
-      self.print_rule(rule[2], l+1)
-
-    else:
-      print '===== UNKNOWN NODE =====:', rule
+    print node
+    for i in range(0, len(node)):
+      self.print_node(node[i], l+1)
+    if isinstance(node, rule.Transform):
+      self.print_node(node.param, l+1)
 
   def __init__(self, input):
     self.rules = []
@@ -177,4 +192,4 @@ class Parser:
     self.parser.parse(input, lexer=self.lexer.lexer)
 
     for rule in self.rules:
-      self.print_rule(rule)
+      self.print_node(rule)
