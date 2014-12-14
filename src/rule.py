@@ -1,5 +1,7 @@
 # coding: utf-8
 
+from visual import *
+
 class Node:
   def __init__(self):
     self.children = []
@@ -9,6 +11,10 @@ class Node:
 
   def __getitem__(self, index):
     return self.children[index]
+
+################################################################################
+# Rules                                                                        #
+################################################################################
 
 class Rule(Node):
   def __init__(self, name, element):
@@ -25,6 +31,10 @@ class StartRule(Rule):
   def __init__(self, element):
     Rule.__init__(self, '$', element)
 
+################################################################################
+# Arithmetic expressions                                                       #
+################################################################################
+
 class ArithExpr(Node):
   def value(self):
     raise NotImplementedError()
@@ -32,7 +42,7 @@ class ArithExpr(Node):
 class Number(ArithExpr):
   def __init__(self, value):
     ArithExpr.__init__(self)
-    self._value = value
+    self._value = float(value)
 
   def value(self):
     return self._value
@@ -83,11 +93,19 @@ class Parenthesis(ArithExpr):
   def value(self):
     return self.children[0].value()
 
+################################################################################
+# Elements                                                                     #
+################################################################################
+
 class Element(Node): pass
 
-class Box(Element): pass
+class Box(Element):
+  def render(self, frame=None):
+    return box(frame=frame)
 
-class Ball(Element): pass
+class Ball(Element):
+  def render(self, frame=None):
+    return sphere(frame=frame)
 
 class Underscore(Element): pass
 
@@ -98,6 +116,10 @@ class RuleElement(Element):
 
   def __str__(self):
     return self.name
+
+################################################################################
+# Transforms                                                                   #
+################################################################################
 
 class Transform(Element):
   def __init__(self, child, param):
@@ -125,13 +147,36 @@ class TY(Transform): pass
 
 class TZ(Transform): pass
 
-class CR(Transform): pass
+class ColorTransform(Transform):
+  def render(self):
+    def change_color(obj):
+      r, g, b = obj.color
+      rt, gt, bt = self.get_color_transform()
+      obj.color = (r * rt, g * gt, b * bt)
 
-class CG(Transform): pass
+    obj = self[0].render()
+    vmap(change_color, obj)
 
-class CB(Transform): pass
+  def get_color_transform(self):
+    raise NotImplementedError()
+
+class CR(ColorTransform):
+  def get_color_transform(self):
+    return (self.param.value(), 1, 1)
+
+class CG(ColorTransform):
+  def get_color_transform(self):
+    return (1, self.param.value(), 1)
+
+class CB(ColorTransform):
+  def get_color_transform(self):
+    return (1, 1, self.param.value())
 
 class D(Transform): pass
+
+################################################################################
+# Operations                                                                   #
+################################################################################
 
 class And(Element):
   def __init__(self, left, right):
@@ -160,3 +205,15 @@ class Optional(Element):
   def __init__(self, child):
     Element.__init__(self)
     self.children.append(child)
+
+################################################################################
+# Helper code                                                                  #
+################################################################################
+
+# Map function for Visual Python objects
+def vmap(f, obj):
+  if isinstance(obj, frame):
+    for child_obj in obj.objects:
+      vmap(f, child_obj)
+  else:
+    f(obj)
