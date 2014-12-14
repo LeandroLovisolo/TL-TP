@@ -24,18 +24,18 @@ class Parser:
     '''rules : rule_definition rules
              | empty'''
     if t[1] is not None:
-      self.rules.append(t[1])
+      self.scene.rules.append(t[1])
 
   def p_rule_definition(self, t):
     '''rule_definition : RULE       EQUALS element
                        | RULE DOT   EQUALS element
                        | START_RULE EQUALS element'''
     if t[1] == '$':
-      t[0] = rule.StartRule(t[3])
+      t[0] = rule.StartRule(self.scene, t[3])
     elif t[2] == '.':
-      t[0] = rule.FinalRule(t[1], t[4])
+      t[0] = rule.FinalRule(self.scene, t[1], t[4])
     else:
-      t[0] = rule.Rule(t[1], t[3])
+      t[0] = rule.Rule(self.scene, t[1], t[3])
 
   def p_element(self, t):
     '''element : primitive
@@ -55,11 +55,11 @@ class Parser:
     primitives = {'box'  : rule.Box,
                   'ball' : rule.Ball,
                   '_'    : rule.Underscore}
-    t[0] = primitives[t[1]]()
+    t[0] = primitives[t[1]](self.scene)
 
   def p_rule(self, t):
     'rule : RULE'
-    t[0] = rule.RuleElement(t[1])
+    t[0] = rule.RuleElement(self.scene, t[1])
 
   def p_transform(self, t):
     'transform : element COLON transform_name arith_expr'
@@ -80,7 +80,7 @@ class Parser:
     element = t[1]
     transform_name = t[3]
     param = t[4]
-    t[0] = transforms[transform_name](element, param)
+    t[0] = transforms[transform_name](self.scene, element, param)
 
   def p_transform_name(self, t):
     '''transform_name : RX
@@ -101,23 +101,23 @@ class Parser:
 
   def p_element_and(self, t):
     'element_and : element AND element'
-    t[0] = rule.And(t[1], t[3])
+    t[0] = rule.And(self.scene, t[1], t[3])
 
   def p_element_or(self, t):
     'element_or : element OR element'
-    t[0] = rule.Or(t[1], t[3])
+    t[0] = rule.Or(self.scene, t[1], t[3])
 
   def p_element_power(self, t):
     'element_power : element POWER arith_expr'
-    t[0] = rule.Power(t[1], t[3])
+    t[0] = rule.Power(self.scene, t[1], t[3])
 
   def p_element_group(self, t):
     'element_group : LGROUP element RGROUP'
-    t[0] = rule.Group(t[2])
+    t[0] = rule.Group(self.scene, t[2])
 
   def p_element_optional(self, t):
     'element_optional : LOPT element ROPT'
-    t[0] = rule.Optional(t[2])
+    t[0] = rule.Optional(self.scene, t[2])
 
   def p_arith_expr(self, t):
     '''arith_expr : arith_expr_number
@@ -132,35 +132,35 @@ class Parser:
 
   def p_arith_expr_number(self, t):
     'arith_expr_number : NUMBER'
-    t[0] = rule.Number(t[1])
+    t[0] = rule.Number(self.scene, t[1])
 
   def p_arith_expr_uplus(self, t):
     'arith_expr_uplus : PLUS arith_expr %prec UPLUS'
-    t[0] = rule.UPlus(t[2])
+    t[0] = rule.UPlus(self.scene, t[2])
 
   def p_arith_expr_uminus(self, t):
     'arith_expr_uminus : MINUS arith_expr %prec UMINUS'
-    t[0] = rule.UMinus(t[2])
+    t[0] = rule.UMinus(self.scene, t[2])
 
   def p_arith_expr_parenthesis(self, t):
     'arith_expr_parenthesis : LPAREN arith_expr RPAREN'
-    t[0] = rule.Parenthesis(t[2])
+    t[0] = rule.Parenthesis(self.scene, t[2])
 
   def p_arith_expr_plus(self, t):
     'arith_expr_plus : arith_expr PLUS arith_expr'
-    t[0] = rule.Plus(t[1], t[3])
+    t[0] = rule.Plus(self.scene, t[1], t[3])
 
   def p_arith_expr_minus(self, t):
     'arith_expr_minus : arith_expr MINUS arith_expr'
-    t[0] = rule.Minus(t[1], t[3])
+    t[0] = rule.Minus(self.scene, t[1], t[3])
 
   def p_arith_expr_times(self, t):
     'arith_expr_times : arith_expr TIMES arith_expr'
-    t[0] = rule.Times(t[1], t[3])
+    t[0] = rule.Times(self.scene, t[1], t[3])
 
   def p_arith_expr_divide(self, t):
     'arith_expr_divide : arith_expr DIVIDE arith_expr'
-    t[0] = rule.Divide(t[1], t[3])
+    t[0] = rule.Divide(self.scene, t[1], t[3])
 
   #############################################################################
 
@@ -185,11 +185,13 @@ class Parser:
       self.print_node(node.param, l+1)
 
   def __init__(self, input):
-    self.rules = []
+    self.scene = rule.Scene()
     self.input = input
     self.lexer = Lexer(input)
     self.parser = yacc.yacc(module=self)
     self.parser.parse(input, lexer=self.lexer.lexer)
 
-    for rule in self.rules:
-      self.print_node(rule)
+    for r in self.scene.rules:
+      self.print_node(r)
+
+    self.scene.render()
