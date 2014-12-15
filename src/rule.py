@@ -1,15 +1,42 @@
 # coding: utf-8
 
-import visual
-
+from direct.showbase.ShowBase import ShowBase
+from panda3d.core import *
 
 ################################################################################
 # Scene                                                                        #
 ################################################################################
 
-class Scene:
+class Scene(ShowBase):
   def __init__(self):
+    ShowBase.__init__(self)
+
+    # Will be filled by the parser
     self.rules = []
+
+    # Background color
+    self.setBackgroundColor(0, 0, 0)
+
+    # Directional light
+    dlight = DirectionalLight('dlight')
+    dlightnp = self.render.attachNewNode(dlight)
+    dlightnp.setZ(100)
+    dlightnp.setP(-90)
+    self.render.setLight(dlightnp)
+
+    # Ambient light
+    ambient = AmbientLight('ambient')
+    ambient.setColor(Vec4(0.2, 0.2, 0.2, 1))
+    ambientnp = self.render.attachNewNode(ambient)
+    self.render.setLight(ambientnp)
+
+    # Camera position
+    self.disableMouse()
+    self.camera.setY(-20)
+    mat = Mat4(self.camera.getMat())
+    mat.invertInPlace()
+    self.mouseInterfaceNode.setMat(mat)
+    self.enableMouse()
 
   def find_rule(self, name):
     for rule in self.rules:
@@ -17,8 +44,16 @@ class Scene:
         return rule
     raise LookupError('Rule %s not found.' % name)
 
-  def render(self):
-    self.find_rule('$').render()
+  def new_detached_node(self):
+    node = self.render.attachNewNode('node')
+    node.setColor(1, 1, 1, 1)
+    node.detachNode()
+    return node
+
+  def do_render(self):
+    parent = self.find_rule('$').render()
+    parent.reparentTo(self.render)
+    self.run()
 
 ################################################################################
 # Node                                                                         #
@@ -130,11 +165,19 @@ class Element(Node): pass
 
 class Box(Element):
   def render(self):
-    return visual.box()
+    node = loader.loadModel("box")
+    def setColor(node):
+      node.setColor(1, 1, 1, 1)
+    nmap(setColor, node)
+    return node
 
 class Ball(Element):
   def render(self):
-    return visual.sphere(radius=0.5)
+    node = loader.loadModel("ball")
+    def setColor(node):
+      node.setColor(1, 1, 1, 1)
+    nmap(setColor, node)
+    return node
 
 class Underscore(Element): pass
 
@@ -149,7 +192,6 @@ class RuleElement(Element):
   def render(self):
     return self.scene.find_rule(self.name).render()
 
-
 ################################################################################
 # Transforms                                                                   #
 ################################################################################
@@ -160,69 +202,82 @@ class Transform(Element):
     self.children.append(child)
     self.param = param
 
-class RotationTransform(Transform):
+class RX(Transform):
   def render(self):
-    obj = self[0].render()
-    obj.rotate(angle=visual.radians(self.param.value()),
-               axis=self.get_rotation_axis())
-    return obj
+    node = self[0].render()
+    node.setP(node.getP() + self.param.value())
+    return node
 
-  def get_rotation_axis(self):
-    raise NotImplementedError()
-
-class RX(RotationTransform):
-  def get_rotation_axis(self):
-    return (1, 0, 0)
-
-class RY(RotationTransform):
-  def get_rotation_axis(self):
-    return (0, 1, 0)
-
-class RZ(RotationTransform):
-  def get_rotation_axis(self):
-    return (0, 0, 1)
-
-class SX(Transform): pass
-
-class SY(Transform): pass
-
-class SZ(Transform): pass
-
-class S(Transform): pass
-
-class TranslationTransform(Transform):
+class RY(Transform):
   def render(self):
-    obj = self[0].render()
-    x, y, z = obj.pos
-    xt, yt, zt = self.get_translation_transform()
-    obj.pos = (x + xt, y + yt, z + zt)
-    return obj
+    node = self[0].render()
+    node.setH(node.getH() + self.param.value())
+    return node
 
-  def get_translation_transform(self):
-    raise NotImplementedError()
+class RZ(Transform):
+  def render(self):
+    node = self[0].render()
+    node.setR(node.getR() + self.param.value())
+    return node
 
-class TX(TranslationTransform):
-  def get_translation_transform(self):
-    return (self.param.value(), 0, 0)
+class SX(Transform):
+  def render(self):
+    node = self[0].render()
+    node.setSx(node.getSx() * self.param.value())
+    return node
 
-class TY(TranslationTransform):
-  def get_translation_transform(self):
-    return (0, self.param.value(), 0)
+class SY(Transform):
+  def render(self):
+    node = self[0].render()
+    node.setSz(node.getSz() * self.param.value())
+    return node
 
-class TZ(TranslationTransform):
-  def get_translation_transform(self):
-    return (0, 0, self.param.value())
+class SZ(Transform):
+  def render(self):
+    node = self[0].render()
+    node.setSy(node.getSy() * self.param.value())
+    return node
+
+class S(Transform):
+  def render(self):
+    node = self[0].render()
+    node.setScale(node.getScale() * self.param.value())
+    return node
+
+class TX(Transform):
+  def render(self):
+    parent = self.scene.new_detached_node()
+    node = self[0].render()
+    node.setX(node.getX() + self.param.value())
+    node.reparentTo(parent)
+    return parent
+
+class TY(Transform):
+  def render(self):
+    parent = self.scene.new_detached_node()
+    node = self[0].render()
+    node.setZ(node.getZ() + self.param.value())
+    node.reparentTo(parent)
+    return parent
+
+class TZ(Transform):
+  def render(self):
+    parent = self.scene.new_detached_node()
+    node = self[0].render()
+    parent.setY(node.getY() + self.param.value())
+    node.reparentTo(parent)
+    return parent
 
 class ColorTransform(Transform):
   def render(self):
-    def change_color(obj):
-      r, g, b = obj.color
+    def change_color(node):
+      r, g, b, a = node.getColor()
       rt, gt, bt = self.get_color_transform()
-      obj.color = (r * rt, g * gt, b * bt)
+      node.setColor(r * rt, g * gt, b * bt, a)
 
-    obj = self[0].render()
-    vmap(change_color, obj)
-    return obj
+    node = self[0].render()
+    nmap(change_color, node)
+    return node
 
   def get_color_transform(self):
     raise NotImplementedError()
@@ -252,12 +307,12 @@ class And(Element):
     self.children.append(right)
 
   def render(self):
-    f = visual.frame()
-    leftobj  = self.children[0].render()
-    rightobj = self.children[1].render()
-    leftobj.frame  = f
-    rightobj.frame = f
-    return f
+    parent = self.scene.new_detached_node()
+    left  = self.children[0].render()
+    right = self.children[1].render()
+    left.reparentTo(parent)
+    right.reparentTo(parent)
+    return parent
 
 class Or(Element):
   def __init__(self, scene, left, right):
@@ -288,10 +343,8 @@ class Optional(Element):
 # Helper code                                                                  #
 ################################################################################
 
-# Map function for Visual Python objects
-def vmap(f, obj):
-  if isinstance(obj, visual.frame):
-    for child_obj in obj.objects:
-      vmap(f, child_obj)
-  else:
-    f(obj)
+# Map function for Panda3D nodes
+def nmap(f, node):
+  f(node)
+  for child in node.getChildren():
+    nmap(f, child)

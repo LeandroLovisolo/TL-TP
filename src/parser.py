@@ -194,4 +194,4 @@ class Parser:
     for r in self.scene.rules:
       self.print_node(r)
 
-    self.scene.render()
+    self.scene.do_render()
