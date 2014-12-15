@@ -3,6 +3,7 @@
 
 # Vim
 *.swp
+*.vim
 
 # LaTeX
 *.aux
