@@ -1,0 +1,10 @@
+menganito = box : cg 0 : cb 0
+jaimito   = ball
+juancito  = [[[menganito : tx -3]] &
+             [[menganito : tx -3] : rz 45] &
+             [jaimito : tx 2.5]
+            ] : sy 2
+$         = juancito &
+            [jaimito : sx 2 : tx -2.5 : cg 0 : cr 0] &
+            [ball : cr 0 : cb 0 : s 0.25]
+
