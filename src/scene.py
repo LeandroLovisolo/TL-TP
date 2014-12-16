@@ -394,7 +394,6 @@ class D(Transform):
 
     return result
 
-
 ################################################################################
 # Operations                                                                   #
 ################################################################################
@@ -488,6 +487,12 @@ class Optional(Element):
   def __init__(self, scene, child):
     Element.__init__(self, scene)
     self.children.append(child)
+
+  def render(self):
+    if randint(0, 1) == 0:
+      return self.scene.new_detached_node()
+    else:
+      return self[0].render()
 
 ################################################################################
 # Helper code                                                                  #
