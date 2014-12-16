@@ -21,12 +21,21 @@ class TestParser(unittest.TestCase):
     self.assertIsInstance(expr[1][1], Number)
 
   def test_transform_vs_and_assoc(self):
-    scene = self.parse('$ = box & box : s 2', print_nodes=True)
+    scene = self.parse('$ = box & box : s 2')
     rule = scene.find_rule('$')
     self.assertIsInstance(rule[0], And)
     self.assertIsInstance(rule[0][0], Box)
     self.assertIsInstance(rule[0][1], Transform)
     self.assertIsInstance(rule[0][1][0], Box)
+
+  def test_or_left_assoc(self):
+    scene = self.parse('$ = box | box | box', print_nodes=True)
+    rule = scene.find_rule('$')
+    self.assertIsInstance(rule[0], Or)
+    self.assertIsInstance(rule[0][0], Or)
+    self.assertIsInstance(rule[0][0][0], Box)
+    self.assertIsInstance(rule[0][0][1], Box)
+    self.assertIsInstance(rule[0][1], Box)
 
 if __name__ == '__main__':
   unittest.main()
