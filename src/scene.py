@@ -238,8 +238,7 @@ class RuleElement(Element):
       # Increase recursion depth
       if hasPerRuleDepth:
         currentPerRuleDepth += 1
-        self.scene.perRuleDepths[self.name] = (currentPerRuleDepth,
-                                               maxPerRuleDepth)
+        self.scene.perRuleDepths[self.name] = (currentPerRuleDepth, maxPerRuleDepth)
       self.scene.currentDepth += 1
 
       # Debug information
@@ -262,8 +261,8 @@ class RuleElement(Element):
       # Decrease recursion depth
       self.scene.currentDepth -= 1
       if hasPerRuleDepth:
-        self.scene.perRuleDepths[self.name] = (currentPerRuleDepth,
-                                               maxPerRuleDepth)
+        currentPerRuleDepth -= 1
+        self.scene.perRuleDepths[self.name] = (currentPerRuleDepth,  maxPerRuleDepth)
 
     # Recursion limit reached
     else:
