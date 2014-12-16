@@ -42,7 +42,7 @@ class World(ShowBase):
 
 class Scene:
   def __init__(self):
-    # Will be filled by the parser
+    # Will be populated by the parser
     self.rules = []
 
     # Scene-wide maximum recursion depth
@@ -238,8 +238,7 @@ class RuleElement(Element):
       # Increase recursion depth
       if hasPerRuleDepth:
         currentPerRuleDepth += 1
-        self.scene.perRuleDepths[self.name] = (currentPerRuleDepth,
-                                               maxPerRuleDepth)
+        self.scene.perRuleDepths[self.name] = (currentPerRuleDepth, maxPerRuleDepth)
       self.scene.currentDepth += 1
 
       # Debug information
@@ -262,8 +261,8 @@ class RuleElement(Element):
       # Decrease recursion depth
       self.scene.currentDepth -= 1
       if hasPerRuleDepth:
-        self.scene.perRuleDepths[self.name] = (currentPerRuleDepth,
-                                               maxPerRuleDepth)
+        currentPerRuleDepth -= 1
+        self.scene.perRuleDepths[self.name] = (currentPerRuleDepth,  maxPerRuleDepth)
 
     # Recursion limit reached
     else:
@@ -320,7 +319,9 @@ class SZ(Transform):
 class S(Transform):
   def render(self):
     node = self[0].render()
-    node.setScale(node.getScale() * self.param.value())
+    node.setSx(node.getSx() * self.param.value())
+    node.setSy(node.getSy() * self.param.value())
+    node.setSz(node.getSz() * self.param.value())
     return node
 
 class TX(Transform):
@@ -393,7 +394,6 @@ class D(Transform):
 
     return result
 
-
 ################################################################################
 # Operations                                                                   #
 ################################################################################
@@ -417,6 +417,19 @@ class Or(Element):
     Element.__init__(self, scene)
     self.children.append(left)
     self.children.append(right)
+
+  def render(self):
+    choices = self.flatten()
+    chosen = choices[randint(0, len(choices) - 1)]
+    return chosen.render()
+
+  def flatten(self):
+    result = []
+    if isinstance(self[0], Or): result += self[0].flatten()
+    else:                       result.append(self[0])
+    if isinstance(self[1], Or): result += self[1].flatten()
+    else:                       result.append(self[1])
+    return result
 
 class Power(Element):
   def __init__(self, scene, child, power):
@@ -474,6 +487,12 @@ class Optional(Element):
   def __init__(self, scene, child):
     Element.__init__(self, scene)
     self.children.append(child)
+
+  def render(self):
+    if randint(0, 1) == 0:
+      return self.scene.new_detached_node()
+    else:
+      return self[0].render()
 
 ################################################################################
 # Helper code                                                                  #
