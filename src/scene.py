@@ -425,12 +425,42 @@ class Power(Element):
     self.power = power
 
   def render(self):
-    if self.power < 1:
+    # Base cases
+    if self.power.value() < 1:
       return self.scene.new_detached_node()
-    elif self.power == 1:
+    elif self.power.value() == 1:
       return self[0].render()
+
+    # Recursive case: recursively create and render a new ghost Power node with
+    # a smaller power, then render the child node
     else:
-      raise NotImplementedError()
+      # New Power node with smaller power
+      new_power = Power(self.scene, self[0],
+                        Number(self.scene, self.power.value() - 1))
+
+      # Accumulate a list of transforms until the first element node is reached
+      transforms = []
+      child = self[0]
+      while isinstance(child, Transform):
+        transforms.append((child.__class__, child.param))
+        child = child[0]
+
+      # Apply transform chain to each conjunction if element node is a group
+      if isinstance(child, Group):
+        and_node = And(self.scene, new_power, child[0])
+        node = self.build_transform_chain(transforms, and_node)
+
+      # Ignore transforms list otherwise
+      else:
+        node = And(self.scene, new_power, self[0])
+
+      return node.render()
+
+  def build_transform_chain(self, transforms, node):
+    while len(transforms) > 0:
+      transform_class, param = transforms.pop()
+      node = transform_class(self.scene, node, param)
+    return node
 
 class Group(Element):
   def __init__(self, scene, child):

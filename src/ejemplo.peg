@@ -29,7 +29,25 @@ spiral = ball &
          [pirulin : rz -90 : ty -1 : d 5] &
          [spiral : tx 1 : rz 15 : s 0.9]
 
+verde = ball : cr 0 : cb 0 : cg 1   : tx 0
+verde = ball : cr 0 : cb 0 : cg 0.9 : tx 1
+verde = ball : cr 0 : cb 0 : cg 0.8 : tx 2
+verde = ball : cr 0 : cb 0 : cg 0.7 : tx 3
+verde = ball : cr 0 : cb 0 : cg 0.6 : tx 4
+verde = ball : cr 0 : cb 0 : cg 0.5 : tx 5
+verde = ball : cr 0 : cb 0 : cg 0.4 : tx 6
+verde = ball : cr 0 : cb 0 : cg 0.3 : tx 7
+verde = ball : cr 0 : cb 0 : cg 0.2 : tx 8
+verde = ball : cr 0 : cb 0 : cg 0.1 : tx 9
+
+multicubo = [[[ box : s 0.1 ]
+              : tx -0.2 : cr 0.8 ^ 10]
+             : ty -0.2 : cg 0.8 ^ 10]
+            : tz -0.2 : cb 0.8 ^ 10
+
 $ = [ball : cr 0 : cb 0 : s 0.25] &
     [pirulin : d 25 : ty 5] &
     [spiral : d 25 : tx 2 : ty -2] &
-    [yodawg : s 0.5 : rz 90 : tx -2 : ty -10]
+    [yodawg : s 0.5 : rz 90 : tx -2 : ty -10] &
+    [verde : ty -8 ^ 5] &
+    [multicubo : s 2 : ry -45 : rx 30 : ty 10 : tx 10]
