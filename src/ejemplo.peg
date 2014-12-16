@@ -1,4 +1,7 @@
-pirulin = [ball : cg 0 : cr 0.5] & [pirulin : tx 1 : cr 1.2 : s 0.9]
+seccionPirulin = ball : cg 0 : cr 0.5
+seccionPirulin = ball : cr 0 : cg 0.5
+
+pirulin = seccionPirulin & [pirulin : tx 1 : cr 1.2 : s 0.9]
 
 "Recursion inside recursion"
 yodawg = box & [pirulin : d 10 : rz 90 : ty 1] & [yodawg : tx 2]

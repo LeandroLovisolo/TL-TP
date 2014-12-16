@@ -1,5 +1,6 @@
 # coding: utf-8
 
+from random import randint
 from direct.showbase.ShowBase import ShowBase
 from panda3d.core import *
 
@@ -52,10 +53,11 @@ class Scene(ShowBase):
     self.enableMouse()
 
   def find_rule(self, name):
-    for rule in self.rules:
-      if rule.name == name:
-        return rule
-    raise LookupError('Rule %s not found.' % name)
+    matching = filter(lambda x : x.name in [name, name + '.'], self.rules)
+    if len(matching) == 0:
+      raise LookupError('Rule %s not found.' % name)
+    else:
+      return matching[randint(0, len(matching) - 1)]
 
   def new_detached_node(self):
     node = self.render.attachNewNode('node')
