@@ -14,6 +14,16 @@ class Scene(ShowBase):
     # Will be filled by the parser
     self.rules = []
 
+    # Scene-wide maximum recursion depth
+    self.maxDepth = 5
+
+    # Current recursion depth
+    self.currentDepth = 0
+
+    # Initialize graphic environment
+    self.setUpPanda3D()
+
+  def setUpPanda3D(self):
     # Background color
     self.setBackgroundColor(0, 0, 0)
 
@@ -190,7 +200,13 @@ class RuleElement(Element):
     return self.name
 
   def render(self):
-    return self.scene.find_rule(self.name).render()
+    if self.scene.currentDepth < self.scene.maxDepth:
+      self.scene.currentDepth += 1
+      result = self.scene.find_rule(self.name).render()
+      self.scene.currentDepth -= 1
+      return result
+    else:
+      return self.scene.new_detached_node()
 
 ################################################################################
 # Transforms                                                                   #
