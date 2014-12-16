@@ -15,7 +15,6 @@ class Parser:
     ('left',  'AND'),
     ('left',  'OR'),
     ('left',  'POWER'),
-    ('left',  'RGROUP', 'ROPT'),
     ('left',  'COLON'),
     )
 
