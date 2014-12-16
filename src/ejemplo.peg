@@ -45,9 +45,14 @@ multicube = [[[ box : s 0.1 ]
              : ty -0.2 : cg 0.8 ^ 10]
             : tz -0.2 : cb 0.8 ^ 10
 
+semaphore = ball : tx 0 : cg 0 : cb 0 |
+            ball : tx 1 : cb 0 |
+            ball : tx 2 : cr 0 : cb 0
+
 $ = [ball : cr 0 : cb 0 : s 0.25] &
     [pirulin : d 25 : ty 5] &
     [spiral : d 25 : tx 2 : ty -2] &
     [yodawg : s 0.5 : rz 90 : tx -2 : ty -10] &
     [green : ty -8 ^ 5] &
-    [multicube : s 2 : ry -45 : rx 30 : ty 10 : tx 10]
+    [multicube : s 2 : ry -45 : rx 30 : ty 10 : tx 10] &
+    [[[semaphore] : ty -1 ^ 10] : ty -10]

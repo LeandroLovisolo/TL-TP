@@ -418,6 +418,19 @@ class Or(Element):
     self.children.append(left)
     self.children.append(right)
 
+  def render(self):
+    choices = self.flatten()
+    chosen = choices[randint(0, len(choices) - 1)]
+    return chosen.render()
+
+  def flatten(self):
+    result = []
+    if isinstance(self[0], Or): result += self[0].flatten()
+    else:                       result.append(self[0])
+    if isinstance(self[1], Or): result += self[1].flatten()
+    else:                       result.append(self[1])
+    return result
+
 class Power(Element):
   def __init__(self, scene, child, power):
     Element.__init__(self, scene)
