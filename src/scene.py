@@ -15,7 +15,7 @@ class Scene(ShowBase):
     self.rules = []
 
     # Scene-wide maximum recursion depth
-    self.maxDepth = 100
+    self.maxDepth = 25
 
     # Current recursion depth
     self.currentDepth = 0
