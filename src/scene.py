@@ -211,7 +211,9 @@ class Ball(Element):
     nmap(setColor, node)
     return node
 
-class Underscore(Element): pass
+class Underscore(Element):
+  def render(self):
+    return self.scene.new_detached_node()
 
 class RuleElement(Element):
   def __init__(self, scene, name):
