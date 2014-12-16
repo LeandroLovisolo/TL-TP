@@ -184,14 +184,13 @@ class Parser:
     if isinstance(node, scene.Transform):
       self.print_node(node.param, l+1)
 
+  def print_nodes(self):
+    for r in self.scene.rules:
+      self.print_node(r)
+
   def __init__(self, input):
     self.scene = scene.Scene()
     self.input = input
     self.lexer = Lexer(input)
     self.parser = yacc.yacc(module=self)
     self.parser.parse(input, lexer=self.lexer.lexer)
-
-    for r in self.scene.rules:
-      self.print_node(r)
-
-    self.scene.do_render()

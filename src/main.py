@@ -18,13 +18,8 @@ def parse(path):
   except LexError:
     sys.exit(-1)
 
-  # lexer = Lexer(input)
-  # lexer.lex()
-  # try:
-  #   for tok in lexer.lexer:
-  #     print tok
-  # except LexError:
-  #   sys.exit(-1)
+  parser.print_nodes()
+  parser.scene.do_render()
 
 if __name__ == '__main__':
   parser = argparse.ArgumentParser()
