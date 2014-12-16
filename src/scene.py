@@ -5,29 +5,13 @@ from direct.showbase.ShowBase import ShowBase
 from panda3d.core import *
 
 ################################################################################
-# Scene                                                                        #
+# World                                                                        #
 ################################################################################
 
-class Scene(ShowBase):
+class World(ShowBase):
   def __init__(self):
     ShowBase.__init__(self)
 
-    # Will be filled by the parser
-    self.rules = []
-
-    # Scene-wide maximum recursion depth
-    self.maxDepth = 30
-
-    # Current recursion depth
-    self.currentDepth = 0
-
-    # Rule => (depth, maxDepth) dictionary for rules with custom depth limits
-    self.perRuleDepths = {}
-
-    # Initialize graphic environment
-    self.setUpPanda3D()
-
-  def setUpPanda3D(self):
     # Background color
     self.setBackgroundColor(0, 0, 0)
 
@@ -52,6 +36,27 @@ class Scene(ShowBase):
     self.mouseInterfaceNode.setMat(mat)
     self.enableMouse()
 
+################################################################################
+# Scene                                                                        #
+################################################################################
+
+class Scene:
+  def __init__(self):
+    # Will be filled by the parser
+    self.rules = []
+
+    # Scene-wide maximum recursion depth
+    self.maxDepth = 30
+
+    # Current recursion depth
+    self.currentDepth = 0
+
+    # Rule => (depth, maxDepth) dictionary for rules with custom depth limits
+    self.perRuleDepths = {}
+
+    # Will be initialized by self.do_render()
+    self.world = None
+
   def find_rule(self, name):
     criteria = lambda x : x.name == name
     rule = self.__find_rule_with_criteria__(criteria)
@@ -71,15 +76,16 @@ class Scene(ShowBase):
       return matching[randint(0, len(matching) - 1)]
 
   def new_detached_node(self):
-    node = self.render.attachNewNode('node')
+    node = self.world.render.attachNewNode('node')
     node.setColor(1, 1, 1, 1)
     node.detachNode()
     return node
 
   def do_render(self):
+    self.world = World()
     parent = self.find_rule('$').render()
-    parent.reparentTo(self.render)
-    self.run()
+    parent.reparentTo(self.world.render)
+    self.world.run()
 
 ################################################################################
 # Node                                                                         #
@@ -415,6 +421,14 @@ class Power(Element):
     Element.__init__(self, scene)
     self.children.append(child)
     self.power = power
+
+  def render(self):
+    if self.power < 1:
+      return self.scene.new_detached_node()
+    elif self.power == 1:
+      return self[0].render()
+    else:
+      raise NotImplementedError()
 
 class Group(Element):
   def __init__(self, scene, child):
