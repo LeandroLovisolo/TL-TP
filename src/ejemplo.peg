@@ -3,14 +3,19 @@ menganito = box : cg 0 : cb 0
 jaimito = ball
 
 juancito = [[[menganito : tx -3]] &
-            [[menganito : tx -3] : rz 45] &
+            [[menganito : tx -3] : rz -45] &
             [jaimito : tx 2.5]
            ] : sy 2
 
-pablito = [ball : ty 5 : cg 0 : cr 0.5] & [pablito : tx 1.5 : cr 1.2]
+pablito = [ball : cg 0 : cr 0.5] & [pablito : tx 1 : cr 1.2 : s 0.9]
+
+spiral = ball &
+         [pablito : rz -90 : ty -1 : d 5] &
+         [spiral : tx 1 : rz 15 : s 0.9]
 
 $ = juancito &
     [jaimito : sx 2 : tx -2.5 : cg 0 : cr 0] &
     [ball : cr 0 : cb 0 : s 0.25] &
-    pablito
+    [pablito : ty 5] &
+    [spiral : d 25 : ty -5]
 

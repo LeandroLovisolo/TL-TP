@@ -15,10 +15,13 @@ class Scene(ShowBase):
     self.rules = []
 
     # Scene-wide maximum recursion depth
-    self.maxDepth = 25
+    self.maxDepth = 100
 
     # Current recursion depth
     self.currentDepth = 0
+
+    # Rule => (depth, maxDepth) dictionary for rules with custom depth limits
+    self.perRuleDepths = {}
 
     # Initialize graphic environment
     self.setUpPanda3D()
@@ -200,10 +203,27 @@ class RuleElement(Element):
     return self.name
 
   def render(self):
-    if self.scene.currentDepth < self.scene.maxDepth:
+    if self.name in self.scene.perRuleDepths.keys():
+      hasPerRuleDepth = True
+      currentPerRuleDepth, maxPerRuleDepth = self.scene.perRuleDepths[self.name]
+    else:
+      hasPerRuleDepth = False
+
+    if self.scene.currentDepth < self.scene.maxDepth and \
+       (not hasPerRuleDepth or currentPerRuleDepth < maxPerRuleDepth):
+
+      if hasPerRuleDepth:
+        self.scene.perRuleDepths[self.name] = (currentPerRuleDepth + 1,
+                                               maxPerRuleDepth)
       self.scene.currentDepth += 1
+
       result = self.scene.find_rule(self.name).render()
+
       self.scene.currentDepth -= 1
+      if hasPerRuleDepth:
+        self.scene.perRuleDepths[self.name] = (currentPerRuleDepth,
+                                               maxPerRuleDepth)
+
       return result
     else:
       return self.scene.new_detached_node()
@@ -310,7 +330,26 @@ class CB(ColorTransform):
   def get_color_transform(self):
     return (1, 1, self.param.value())
 
-class D(Transform): pass
+class D(Transform):
+  def render(self):
+    child = self[0]
+    while isinstance(child, Transform):
+      child = child[0]
+
+    if not isinstance(child, RuleElement):
+      print "Ignoring maximum depth transform applied to non-rule element."
+      return self[0].render()
+
+    rule = child
+    if rule.name not in self.scene.perRuleDepths.keys():
+      self.scene.perRuleDepths[rule.name] = (0, self.param.value())
+      result = self[0].render()
+      self.scene.perRuleDepths.pop(rule.name)
+    else:
+      result = self[0].render()
+
+    return result
+
 
 ################################################################################
 # Operations                                                                   #
