@@ -28,6 +28,24 @@ class TestParser(unittest.TestCase):
     self.assertIsInstance(rule[0][1], Transform)
     self.assertIsInstance(rule[0][1][0], Box)
 
+  def test_or_left_assoc(self):
+    scene = self.parse('$ = box | box | box')
+    rule = scene.find_rule('$')
+    self.assertIsInstance(rule[0], Or)
+    self.assertIsInstance(rule[0][0], Or)
+    self.assertIsInstance(rule[0][0][0], Box)
+    self.assertIsInstance(rule[0][0][1], Box)
+    self.assertIsInstance(rule[0][1], Box)
+
+  def test_and_left_assoc(self):
+    scene = self.parse('$ = box & box & box')
+    rule = scene.find_rule('$')
+    self.assertIsInstance(rule[0], And)
+    self.assertIsInstance(rule[0][0], And)
+    self.assertIsInstance(rule[0][0][0], Box)
+    self.assertIsInstance(rule[0][0][1], Box)
+    self.assertIsInstance(rule[0][1], Box)
+
   def test_and_vs_or_assoc(self):
     scene = self.parse('$ = box & box | ball')
     rule = scene.find_rule('$')
@@ -36,31 +54,6 @@ class TestParser(unittest.TestCase):
     self.assertIsInstance(rule[0][1], Or)
     self.assertIsInstance(rule[0][1][0], Box)
     self.assertIsInstance(rule[0][1][1], Ball)
-
-  def test_group_vs_and_assoc(self):
-    scene = self.parse('$ = [box : s 1] & box')
-    rule = scene.find_rule('$')
-    self.assertIsInstance(rule[0], And)
-    self.assertIsInstance(rule[0][0], Group)
-    self.assertIsInstance(rule[0][0][0], Transform)
-    self.assertIsInstance(rule[0][0][0][0], Box)
-    self.assertIsInstance(rule[0][1], Box)
-
-  def test_group_vs_or_assoc(self):
-    scene = self.parse('$ = [box : s 1] | box')
-    rule = scene.find_rule('$')
-    self.assertIsInstance(rule[0], Or)
-    self.assertIsInstance(rule[0][0], Group)
-    self.assertIsInstance(rule[0][0][0], Transform)
-    self.assertIsInstance(rule[0][0][0][0], Box)
-    self.assertIsInstance(rule[0][1], Box)
-
-  def test_power_vs_group_assoc(self):
-    scene = self.parse('$ = [box] ^1')
-    rule = scene.find_rule('$')
-    self.assertIsInstance(rule[0], Power)
-    self.assertIsInstance(rule[0][0], Group)
-    self.assertIsInstance(rule[0][0][0], Box)
 
   def test_power_vs_transform_assoc(self):
     scene = self.parse('$ = box : s 1 ^1')
@@ -78,7 +71,7 @@ class TestParser(unittest.TestCase):
     self.assertIsInstance(rule[0][1][0], Box)
 
   def test_or_vs_transform_assoc(self):
-    scene = self.parse('$ = box | box : s 2')
+    scene = self.parse('$ = box | box : s 1')
     rule = scene.find_rule('$')
     self.assertIsInstance(rule[0], Or)
     self.assertIsInstance(rule[0][0], Box)
