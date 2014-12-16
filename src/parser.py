@@ -13,11 +13,10 @@ class Parser:
     ('left',  'TIMES', 'DIVIDE'),
     ('right', 'UPLUS', 'UMINUS'),
     ('left',  'AND'),
-    # ('left',  'OR'),
-    # ('left',  'POWER'),
-    # ('left',  'RGROUP'),
-    # ('left',  'ROPT'),
-    # ('left',  'COLON'),
+    ('left',  'OR'),
+    ('left',  'POWER'),
+    ('left',  'RGROUP', 'ROPT'),
+    ('left',  'COLON'),
     )
 
   def p_rules(self, t):
