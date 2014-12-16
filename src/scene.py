@@ -15,7 +15,7 @@ class Scene(ShowBase):
     self.rules = []
 
     # Scene-wide maximum recursion depth
-    self.maxDepth = 5
+    self.maxDepth = 25
 
     # Current recursion depth
     self.currentDepth = 0
@@ -221,7 +221,7 @@ class Transform(Element):
 class RX(Transform):
   def render(self):
     node = self[0].render()
-    node.setP(node.getP() + self.param.value())
+    node.setP(node.getP() - self.param.value())
     return node
 
 class RY(Transform):
@@ -233,7 +233,7 @@ class RY(Transform):
 class RZ(Transform):
   def render(self):
     node = self[0].render()
-    node.setR(node.getR() + self.param.value())
+    node.setR(node.getR() - self.param.value())
     return node
 
 class SX(Transform):
