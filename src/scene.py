@@ -1,5 +1,6 @@
 # coding: utf-8
 
+from random import randint
 from direct.showbase.ShowBase import ShowBase
 from panda3d.core import *
 
@@ -14,6 +15,19 @@ class Scene(ShowBase):
     # Will be filled by the parser
     self.rules = []
 
+    # Scene-wide maximum recursion depth
+    self.maxDepth = 30
+
+    # Current recursion depth
+    self.currentDepth = 0
+
+    # Rule => (depth, maxDepth) dictionary for rules with custom depth limits
+    self.perRuleDepths = {}
+
+    # Initialize graphic environment
+    self.setUpPanda3D()
+
+  def setUpPanda3D(self):
     # Background color
     self.setBackgroundColor(0, 0, 0)
 
@@ -39,10 +53,22 @@ class Scene(ShowBase):
     self.enableMouse()
 
   def find_rule(self, name):
-    for rule in self.rules:
-      if rule.name == name:
-        return rule
-    raise LookupError('Rule %s not found.' % name)
+    criteria = lambda x : x.name == name
+    rule = self.__find_rule_with_criteria__(criteria)
+    if rule is None: raise LookupError('Rule %s not found.' % name)
+    return rule
+
+  def find_final_rule(self, name):
+    criteria = lambda x : x.name == name and isinstance(x, FinalRule)
+    rule = self.__find_rule_with_criteria__(criteria)
+    return rule
+
+  def __find_rule_with_criteria__(self, criteria):
+    matching = filter(criteria, self.rules)
+    if len(matching) == 0:
+      return None
+    else:
+      return matching[randint(0, len(matching) - 1)]
 
   def new_detached_node(self):
     node = self.render.attachNewNode('node')
@@ -190,7 +216,52 @@ class RuleElement(Element):
     return self.name
 
   def render(self):
-    return self.scene.find_rule(self.name).render()
+    # Get per-rule recursion limit and current depth
+    if self.name in self.scene.perRuleDepths.keys():
+      hasPerRuleDepth = True
+      currentPerRuleDepth, maxPerRuleDepth = self.scene.perRuleDepths[self.name]
+    else:
+      hasPerRuleDepth = False
+
+    # Check if recursion limit has been reached
+    if self.scene.currentDepth < self.scene.maxDepth and \
+       (not hasPerRuleDepth or currentPerRuleDepth < maxPerRuleDepth):
+
+      # Increase recursion depth
+      if hasPerRuleDepth:
+        currentPerRuleDepth += 1
+        self.scene.perRuleDepths[self.name] = (currentPerRuleDepth,
+                                               maxPerRuleDepth)
+      self.scene.currentDepth += 1
+
+      # Debug information
+      # if hasPerRuleDepth:
+      #   perRuleStr = "\tRule depth: %d/%d." % (currentPerRuleDepth, maxPerRuleDepth)
+      # else: perRuleStr = ""
+      # print "Rendering rule %s.\tGlobal depth: %d/%d.%s" \
+      #     % (self.name, self.scene.currentDepth, self.scene.maxDepth, perRuleStr)
+
+      # Render final rule if we're at the last recursive call and there is one
+      if (self.scene.currentDepth == self.scene.maxDepth or \
+          (hasPerRuleDepth and currentPerRuleDepth == maxPerRuleDepth)) and \
+         self.scene.find_final_rule(self.name) is not None:
+        result = self.scene.find_final_rule(self.name).render()
+
+      # Not the last recursive call or no final rule
+      else:
+        result = self.scene.find_rule(self.name).render()
+
+      # Decrease recursion depth
+      self.scene.currentDepth -= 1
+      if hasPerRuleDepth:
+        self.scene.perRuleDepths[self.name] = (currentPerRuleDepth,
+                                               maxPerRuleDepth)
+
+    # Recursion limit reached
+    else:
+      result = self.scene.new_detached_node()
+
+    return result
 
 ################################################################################
 # Transforms                                                                   #
@@ -205,7 +276,7 @@ class Transform(Element):
 class RX(Transform):
   def render(self):
     node = self[0].render()
-    node.setP(node.getP() + self.param.value())
+    node.setP(node.getP() - self.param.value())
     return node
 
 class RY(Transform):
@@ -217,7 +288,7 @@ class RY(Transform):
 class RZ(Transform):
   def render(self):
     node = self[0].render()
-    node.setR(node.getR() + self.param.value())
+    node.setR(node.getR() - self.param.value())
     return node
 
 class SX(Transform):
@@ -294,7 +365,26 @@ class CB(ColorTransform):
   def get_color_transform(self):
     return (1, 1, self.param.value())
 
-class D(Transform): pass
+class D(Transform):
+  def render(self):
+    child = self[0]
+    while isinstance(child, Transform):
+      child = child[0]
+
+    if not isinstance(child, RuleElement):
+      print "Ignoring maximum depth transform applied to non-rule element."
+      return self[0].render()
+
+    rule = child
+    if rule.name not in self.scene.perRuleDepths.keys():
+      self.scene.perRuleDepths[rule.name] = (0, self.param.value())
+      result = self[0].render()
+      self.scene.perRuleDepths.pop(rule.name)
+    else:
+      result = self[0].render()
+
+    return result
+
 
 ################################################################################
 # Operations                                                                   #
