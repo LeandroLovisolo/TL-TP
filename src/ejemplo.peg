@@ -1,7 +1,25 @@
-seccionPirulin = ball : cg 0 : cr 0.5
-seccionPirulin = ball : cr 0 : cg 0.5
-
-pirulin = seccionPirulin & [pirulin : tx 1 : cr 1.2 : s 0.9]
+"Probability of final rule: 0.05"
+pirulin = ball : cg 0 : cr 0.5 & [pirulin : tx 1 : cr 1.2 : s 0.9]
+pirulin = ball : cg 0 : cr 0.5 & [pirulin : tx 1 : cr 1.2 : s 0.9]
+pirulin = ball : cg 0 : cr 0.5 & [pirulin : tx 1 : cr 1.2 : s 0.9]
+pirulin = ball : cg 0 : cr 0.5 & [pirulin : tx 1 : cr 1.2 : s 0.9]
+pirulin = ball : cg 0 : cr 0.5 & [pirulin : tx 1 : cr 1.2 : s 0.9]
+pirulin = ball : cg 0 : cr 0.5 & [pirulin : tx 1 : cr 1.2 : s 0.9]
+pirulin = ball : cg 0 : cr 0.5 & [pirulin : tx 1 : cr 1.2 : s 0.9]
+pirulin = ball : cg 0 : cr 0.5 & [pirulin : tx 1 : cr 1.2 : s 0.9]
+pirulin = ball : cg 0 : cr 0.5 & [pirulin : tx 1 : cr 1.2 : s 0.9]
+pirulin = ball : cg 0 : cr 0.5 & [pirulin : tx 1 : cr 1.2 : s 0.9]
+pirulin = ball : cg 0 : cr 0.5 & [pirulin : tx 1 : cr 1.2 : s 0.9]
+pirulin = ball : cg 0 : cr 0.5 & [pirulin : tx 1 : cr 1.2 : s 0.9]
+pirulin = ball : cg 0 : cr 0.5 & [pirulin : tx 1 : cr 1.2 : s 0.9]
+pirulin = ball : cg 0 : cr 0.5 & [pirulin : tx 1 : cr 1.2 : s 0.9]
+pirulin = ball : cg 0 : cr 0.5 & [pirulin : tx 1 : cr 1.2 : s 0.9]
+pirulin = ball : cg 0 : cr 0.5 & [pirulin : tx 1 : cr 1.2 : s 0.9]
+pirulin = ball : cg 0 : cr 0.5 & [pirulin : tx 1 : cr 1.2 : s 0.9]
+pirulin = ball : cg 0 : cr 0.5 & [pirulin : tx 1 : cr 1.2 : s 0.9]
+pirulin = ball : cg 0 : cr 0.5 & [pirulin : tx 1 : cr 1.2 : s 0.9]
+pirulin = ball : cg 0 : cr 0.5 & [pirulin : tx 1 : cr 1.2 : s 0.9]
+pirulin. = ball : cr 0 : cb 0
 
 "Recursion inside recursion"
 yodawg = box & [pirulin : d 10 : rz 90 : ty 1] & [yodawg : tx 2]
@@ -10,8 +28,35 @@ spiral = ball &
          [pirulin : rz -90 : ty -1 : d 5] &
          [spiral : tx 1 : rz 15 : s 0.9]
 
+proxy = box & [pirulin : tx 1]
+
+
 $ = [ball : cr 0 : cb 0 : s 0.25] &
     [pirulin : d 25 : ty 5] &
     [spiral : d 25 : tx 2 : ty -2] &
     [yodawg : s 0.5 : rz 90 : tx -2 : ty -10]
 
+gilada = ball & [gilada : tx 1]
+gilada = ball & [gilada : tx 1]
+gilada = ball & [gilada : tx 1]
+gilada = ball & [gilada : tx 1]
+gilada = ball & [gilada : tx 1]
+gilada = ball & [gilada : tx 1]
+gilada = ball & [gilada : tx 1]
+gilada = ball & [gilada : tx 1]
+gilada = ball & [gilada : tx 1]
+gilada = ball & [gilada : tx 1]
+gilada = ball & [gilada : tx 1]
+gilada = ball & [gilada : tx 1]
+gilada = ball & [gilada : tx 1]
+gilada = ball & [gilada : tx 1]
+gilada = ball & [gilada : tx 1]
+gilada = ball & [gilada : tx 1]
+gilada = ball & [gilada : tx 1]
+gilada = ball & [gilada : tx 1]
+gilada = ball & [gilada : tx 1]
+gilada = ball & [gilada : tx 1]
+gilada. = ball : cg 0 : cb 0
+
+
+a = gilada : d 5

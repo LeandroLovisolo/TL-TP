@@ -16,7 +16,7 @@ class Scene(ShowBase):
     self.rules = []
 
     # Scene-wide maximum recursion depth
-    self.maxDepth = 25
+    self.maxDepth = 30
 
     # Current recursion depth
     self.currentDepth = 0
@@ -53,9 +53,20 @@ class Scene(ShowBase):
     self.enableMouse()
 
   def find_rule(self, name):
-    matching = filter(lambda x : x.name in [name, name + '.'], self.rules)
+    criteria = lambda x : x.name == name
+    rule = self.__find_rule_with_criteria__(criteria)
+    if rule is None: raise LookupError('Rule %s not found.' % name)
+    return rule
+
+  def find_final_rule(self, name):
+    criteria = lambda x : x.name == name and isinstance(x, FinalRule)
+    rule = self.__find_rule_with_criteria__(criteria)
+    return rule
+
+  def __find_rule_with_criteria__(self, criteria):
+    matching = filter(criteria, self.rules)
     if len(matching) == 0:
-      raise LookupError('Rule %s not found.' % name)
+      return None
     else:
       return matching[randint(0, len(matching) - 1)]
 
@@ -205,30 +216,52 @@ class RuleElement(Element):
     return self.name
 
   def render(self):
+    # Get per-rule recursion limit and current depth
     if self.name in self.scene.perRuleDepths.keys():
       hasPerRuleDepth = True
       currentPerRuleDepth, maxPerRuleDepth = self.scene.perRuleDepths[self.name]
     else:
       hasPerRuleDepth = False
 
+    # Check if recursion limit has been reached
     if self.scene.currentDepth < self.scene.maxDepth and \
        (not hasPerRuleDepth or currentPerRuleDepth < maxPerRuleDepth):
 
+      # Increase recursion depth
       if hasPerRuleDepth:
-        self.scene.perRuleDepths[self.name] = (currentPerRuleDepth + 1,
+        currentPerRuleDepth += 1
+        self.scene.perRuleDepths[self.name] = (currentPerRuleDepth,
                                                maxPerRuleDepth)
       self.scene.currentDepth += 1
 
-      result = self.scene.find_rule(self.name).render()
+      # Debug information
+      # if hasPerRuleDepth:
+      #   perRuleStr = "\tRule depth: %d/%d." % (currentPerRuleDepth, maxPerRuleDepth)
+      # else: perRuleStr = ""
+      # print "Rendering rule %s.\tGlobal depth: %d/%d.%s" \
+      #     % (self.name, self.scene.currentDepth, self.scene.maxDepth, perRuleStr)
 
+      # Render final rule if we're at the last recursive call and there is one
+      if (self.scene.currentDepth == self.scene.maxDepth or \
+          (hasPerRuleDepth and currentPerRuleDepth == maxPerRuleDepth)) and \
+         self.scene.find_final_rule(self.name) is not None:
+        result = self.scene.find_final_rule(self.name).render()
+
+      # Not the last recursive call or no final rule
+      else:
+        result = self.scene.find_rule(self.name).render()
+
+      # Decrease recursion depth
       self.scene.currentDepth -= 1
       if hasPerRuleDepth:
         self.scene.perRuleDepths[self.name] = (currentPerRuleDepth,
                                                maxPerRuleDepth)
 
-      return result
+    # Recursion limit reached
     else:
-      return self.scene.new_detached_node()
+      result = self.scene.new_detached_node()
+
+    return result
 
 ################################################################################
 # Transforms                                                                   #
