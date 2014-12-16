@@ -42,7 +42,7 @@ class World(ShowBase):
 
 class Scene:
   def __init__(self):
-    # Will be filled by the parser
+    # Will be populated by the parser
     self.rules = []
 
     # Scene-wide maximum recursion depth
@@ -319,7 +319,9 @@ class SZ(Transform):
 class S(Transform):
   def render(self):
     node = self[0].render()
-    node.setScale(node.getScale() * self.param.value())
+    node.setSx(node.getSx() * self.param.value())
+    node.setSy(node.getSy() * self.param.value())
+    node.setSz(node.getSz() * self.param.value())
     return node
 
 class TX(Transform):
