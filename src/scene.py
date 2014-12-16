@@ -1,5 +1,6 @@
 # coding: utf-8
 
+import os
 from random import randint
 from direct.showbase.ShowBase import ShowBase
 from panda3d.core import *
@@ -46,7 +47,7 @@ class Scene:
     self.rules = []
 
     # Scene-wide maximum recursion depth
-    self.maxDepth = 30
+    self.maxDepth = 100
 
     # Current recursion depth
     self.currentDepth = 0
@@ -197,7 +198,7 @@ class Element(Node): pass
 
 class Box(Element):
   def render(self):
-    node = loader.loadModel("box")
+    node = loader.loadModel(os.path.dirname(__file__) + os.path.sep + 'box')
     def setColor(node):
       node.setColor(1, 1, 1, 1)
     nmap(setColor, node)
@@ -205,7 +206,7 @@ class Box(Element):
 
 class Ball(Element):
   def render(self):
-    node = loader.loadModel("ball")
+    node = loader.loadModel(os.path.dirname(__file__) + os.path.sep + 'ball')
     def setColor(node):
       node.setColor(1, 1, 1, 1)
     nmap(setColor, node)
