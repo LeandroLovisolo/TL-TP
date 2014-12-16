@@ -1,21 +1,14 @@
-menganito = box : cg 0 : cb 0
+pirulin = [ball : cg 0 : cr 0.5] & [pirulin : tx 1 : cr 1.2 : s 0.9]
 
-jaimito = ball
-
-juancito = [[[menganito : tx -3]] &
-            [[menganito : tx -3] : rz -45] &
-            [jaimito : tx 2.5]
-           ] : sy 2
-
-pablito = [ball : cg 0 : cr 0.5] & [pablito : tx 1 : cr 1.2 : s 0.9]
+"Recursion inside recursion"
+yodawg = box & [pirulin : d 10 : rz 90 : ty 1] & [yodawg : tx 2]
 
 spiral = ball &
-         [pablito : rz -90 : ty -1 : d 5] &
+         [pirulin : rz -90 : ty -1 : d 5] &
          [spiral : tx 1 : rz 15 : s 0.9]
 
-$ = juancito &
-    [jaimito : sx 2 : tx -2.5 : cg 0 : cr 0] &
-    [ball : cr 0 : cb 0 : s 0.25] &
-    [pablito : ty 5] &
-    [spiral : d 25 : ty -5]
+$ = [ball : cr 0 : cb 0 : s 0.25] &
+    [pirulin : d 25 : ty 5] &
+    [spiral : d 25 : tx 2 : ty -2] &
+    [yodawg : s 0.5 : rz 90 : tx -2 : ty -10]
 
