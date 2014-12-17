@@ -4,7 +4,7 @@ BUNDLE_FILES = src tex Makefile README.md enunciado.pdf informe.pdf
 
 PARSER_FILES = src/parser.out src/parsetab.py
 
-.PHONY: all clean clean-tex bundle
+.PHONY: all informe.pdf clean clean-tex bundle
 
 all: informe.pdf
 
