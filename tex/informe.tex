@@ -21,6 +21,8 @@
 \usepackage{xspace}
 \usepackage[toc, page]{appendix}
 
+\usepackage{listings}
+
 
 %%%%%%%%%% Constantes - Inicio %%%%%%%%%%
 \newcommand{\titulo}{Trabajo Práctico}
@@ -126,7 +128,123 @@ Petaccio, Lautaro José & 443/11 & lausuper@gmail.com\\
 
 \section{Introducción}
 
-Pendiente.
+\section{Especificación de la gramática}
+\begin{verbatim}
+Rules -> Rule_Definition Rules
+       | Empty
+
+Rule_Definition -> Rule = Element
+                 | Rule .= Element
+                 | $ = Elem
+
+Element -> Primitive
+         | Rule
+         | Transform
+         | Element_And
+         | Element_Or
+         | Element_Power
+         | Element_Group
+         | Element_Optional
+
+Primitive -> Box
+           | Ball
+           | Underescore
+
+Rule -> Regla
+
+Transform -> Elem : Transform_Name Arith_Expr
+
+Transform_Name -> Rx
+                | Ry
+                | Rz
+                | Sx
+                | Sy
+                | Sz
+                | S
+                | Tx
+                | Ty
+                | Tz
+                | Cr
+                | Cg
+                | Cb
+                | D
+
+Element_And -> Element & Element
+
+Element_Or -> Element | Element
+
+Element_Power -> Element ^ Arith_Expr
+
+Element_Group -> [ Element ]
+
+Element_Optional -> < Element >
+
+Arith_Expr -> Airth_Expr_Number
+            | Airth_Expr_Uplus
+            | Airth_Expr_Uminus
+            | Airth_Expr_Parenthesis
+            | Arith_Expr_Plus
+            | Airth_Expr_Minus
+            | Airth_Expr_Times
+            | Airth_Expr_Divide
+
+Arith_Expr_Number -> Number
+
+Arith_Expr_Uplus -> + Arith_Expr
+
+Arith_Expr_Uminus -> - Arith_Expr
+
+Arith_Expr_Times -> Arith_Expr * Airth_Expr
+
+Arith_Expr_Divide -> Airth_Expr / Airth_Expr
+
+Empty
+
+\end{verbatim}
+
+\section{Modo de uso}
+
+El programa admite como input, archivos con texto plano con las instrucciones para realizar el renderizado según el lenguaje.
+
+Puede ejecutarse en la carpeta /src mediante el comando \verb+python2 main.py input_file.peg+
+
+\section{Requerimientos}
+Se requiere la utilización de Python 2.7 para la ejecución del programa.
+
+Son necesarias además, las siguientes bibliotecas:
+\begin{itemize}
+\item Panda3D para el renderizado gráfico, descargable de https://www.panda3d.org/
+\item Ply para el lado del parsing, descargable de http://www.dabeaz.com/ply/
+\end{itemize}
+
+El código del programa se encuentra en /src y debe ser ejecutado desde main.py
+
+\section{Código}
+
+\subsection{Main}
+
+\begin{small}
+\verbatiminput{../src/main.py}
+\end{small}
+
+
+\subsection{Lexer}
+
+\begin{small}
+\verbatiminput{../src/lexer.py}
+\end{small}
+
+\subsection{Parser}
+
+\begin{small}
+\verbatiminput{../src/parser.py}
+\end{small}
+
+\subsection{Scene}
+
+\begin{small}
+\verbatiminput{../src/scene.py}
+\end{small}
 
 
 \end{document}

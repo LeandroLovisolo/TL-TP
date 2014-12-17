@@ -77,7 +77,7 @@ class Lexer:
     column = self.find_column(t)
     print 'Illegal character at line %d, column %d:' % (line, column)
     print self.input.split('\n')[line - 1]
-    print ' ' * (column - 1) + '↑'
+    print ' ' * (column - 1) + '^'
 
   # Devuelve el número de línea del token dado
   def find_line(self, t):
