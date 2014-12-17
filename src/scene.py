@@ -215,6 +215,30 @@ class Underscore(Element):
   def render(self):
     return self.scene.new_detached_node()
 
+class Cylinder(Element):
+  def render(self):
+    node = loader.loadModel(os.path.dirname(__file__) + os.path.sep + 'cylinder')
+    def setColor(node):
+      node.setColor(1, 1, 1, 1)
+    nmap(setColor, node)
+    return node
+
+class Cone(Element):
+  def render(self):
+    node = loader.loadModel(os.path.dirname(__file__) + os.path.sep + 'cone')
+    def setColor(node):
+      node.setColor(1, 1, 1, 1)
+    nmap(setColor, node)
+    return node
+
+class Torus(Element):
+  def render(self):
+    node = loader.loadModel(os.path.dirname(__file__) + os.path.sep + 'torus')
+    def setColor(node):
+      node.setColor(1, 1, 1, 1)
+    nmap(setColor, node)
+    return node
+
 class RuleElement(Element):
   def __init__(self, scene, name):
     Element.__init__(self, scene)

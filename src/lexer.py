@@ -6,6 +6,7 @@ class Lexer:
 
   keywords = (
     'BOX', 'BALL',                      # Primitivas
+    'CYLINDER', 'CONE', 'TORUS',        # Primitivas de yapa
     'RX', 'RY', 'RZ',                   # Rotación
     'SX', 'SY', 'SZ', 'S',              # Escala
     'TX', 'TY', 'TZ',                   # Traslación
