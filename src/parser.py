@@ -171,6 +171,7 @@ class Parser:
     print 'Syntax error at line %d, column %d:' % (line, column)
     print self.input.split('\n')[line - 1]
     print ' ' * (column - 1) + '^'
+    self.has_errors = True
 
   def print_node(self, node, l=0):
     import sys
@@ -187,6 +188,7 @@ class Parser:
       self.print_node(r)
 
   def __init__(self, input):
+    self.has_errors = False
     self.scene = scene.Scene()
     self.input = input
     self.lexer = Lexer(input)

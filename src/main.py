@@ -1,5 +1,4 @@
 #!/usr/bin/env python2
-
 # coding: utf-8
 
 import argparse
@@ -18,8 +17,8 @@ def parse(path):
   except LexError:
     sys.exit(-1)
 
-  parser.print_nodes()
-  parser.scene.do_render()
+  if not parser.has_errors:
+    parser.scene.do_render()
 
 if __name__ == '__main__':
   parser = argparse.ArgumentParser()
