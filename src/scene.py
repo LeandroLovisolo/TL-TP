@@ -19,8 +19,7 @@ class World(ShowBase):
     # Directional light
     dlight = DirectionalLight('dlight')
     dlightnp = self.render.attachNewNode(dlight)
-    dlightnp.setZ(100)
-    dlightnp.setP(-90)
+    dlightnp.setY(-100)
     self.render.setLight(dlightnp)
 
     # Ambient light
@@ -284,7 +283,7 @@ class Transform(Element):
 class RX(Transform):
   def render(self):
     node = self[0].render()
-    node.setP(node.getP() - self.param.value())
+    node.setP(node.getP() + self.param.value())
     return node
 
 class RY(Transform):
@@ -345,7 +344,7 @@ class TZ(Transform):
   def render(self):
     parent = self.scene.new_detached_node()
     node = self[0].render()
-    parent.setY(node.getY() + self.param.value())
+    parent.setY(node.getY() - self.param.value())
     node.reparentTo(parent)
     return parent
 
