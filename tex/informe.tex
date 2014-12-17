@@ -21,7 +21,8 @@
 \usepackage{xspace}
 \usepackage[toc, page]{appendix}
 
-\usepackage{listings}
+\usepackage{tikz}
+\usetikzlibrary{shapes.geometric, arrows}
 
 
 %%%%%%%%%% Constantes - Inicio %%%%%%%%%%
@@ -140,7 +141,7 @@ Rules -> Rule_Definition Rules
 
 Rule_Definition -> Rule = Element
                  | Rule .= Element
-                 | $ = Elem
+                 | $ = Element
 
 Element -> Primitive
          | Rule
@@ -157,7 +158,7 @@ Primitive -> Box
 
 Rule -> Regla
 
-Transform -> Elem : Transform_Name Arith_Expr
+Transform -> Element : Transform_Name Arith_Expr
 
 Transform_Name -> Rx
                 | Ry
@@ -222,6 +223,44 @@ Las reglas, utilizando los tokens y el tipo de asociatividad, de menor precedenc
 \item Right $\to$ POWER
 \item Right $\to$ COLON
 \end{enumerate}
+
+\section{Ejemplificación de árboles de derivación}
+
+\tikzstyle{word} = [rectangle, rounded corners, minimum width=1cm,text centered]
+\tikzstyle{arrow} = [thick,>=stealth]
+\begin{tikzpicture}[node distance=1.5cm]
+
+%$ = box : s 1 ^1
+
+%Nivel uno
+\node (pesosUno) [word, xshift=0.5cm] {\$};
+\node (igualUno) [word, right of=pesosUno, xshift=0.5cm] {=};
+\node (boxUno) [word, right of=igualUno, xshift=0.5cm] {box};
+\node (puntosUno) [word, right of=boxUno, xshift=0.5cm] {:};
+\node (escalaUno) [word, right of=puntosUno, xshift=0.5cm] {s};
+\node (numeroUno) [word, right of=escalaUno, xshift=0.5cm] {1};
+\node (powerUno) [word, right of=numeroUno, xshift=0.5cm] {pow};
+\node (otroNumeroUno) [word, right of=powerUno, xshift=0.5cm] {1};
+
+%Nivel dos
+\node (primitiveBoxDos) [word, below of=boxUno] {Primitive};
+\node (arithExprDos) [word, below of=numeroUno] {Arith\_Expr\_Number};
+
+%nNivel tres
+
+\node (elementTres) [word, below of=primitiveBoxDos] {Element};
+\node (puntosTres) [word, right of=elementTres, xshift=0.5cm] {:};
+\node (escalaTres) [word, right of=puntosTres, xshift=0.5cm] {Transform\_Name};
+
+
+\draw [arrow] (boxUno) -- (primitiveBoxDos);
+\draw [arrow] (numeroUno) -- (arithExprDos);
+\draw [arrow] (primitiveBoxDos) -- (elementTres);
+\draw [arrow] (puntosUno) -- (puntosTres);
+\draw [arrow] (escalaUno) -- (escalaTres);
+
+\end{tikzpicture}
+
 \section{Modo de uso}
 
 El programa admite como input, archivos con texto plano con las instrucciones para realizar el renderizado según el lenguaje.
