@@ -137,77 +137,99 @@ Utilizaremos la librería Ply, sobre la cuál definiremos la gramática para est
 \section{Especificación de la gramática}
 
 \begin{verbatim}
-Rules -> Rule_Definition Rules
-       | Empty
+rules -> rule_definition rules
+       | empty
 
-Rule_Definition -> Rule = Element
-                 | Rule .= Element
-                 | $ = Element
+rule_definition -> rule = element
+                 | rule .= element
+                 | $ = element
 
-Element -> Primitive
-         | Rule
-         | Transform
-         | Element_And
-         | Element_Or
-         | Element_Power
-         | Element_Group
-         | Element_Optional
+element -> primitive
+         | rule
+         | transform
+         | element_and
+         | element_or
+         | element_power
+         | element_group
+         | element_optional
 
-Primitive -> Box
-           | Ball
-           | Underescore
+primitive -> BOX
+           | BALL
+           | UNDERSCORE
 
-Rule -> Regla
+rule -> RULE
 
-Transform -> Element : Transform_Name Arith_Expr
+transform -> element : transform_name arith_expr
 
-Transform_Name -> Rx
-                | Ry
-                | Rz
-                | Sx
-                | Sy
-                | Sz
+transform_name -> RX
+                | RY
+                | RZ
+                | SX
+                | SY
+                | SZ
                 | S
-                | Tx
-                | Ty
-                | Tz
-                | Cr
-                | Cg
-                | Cb
+                | TX
+                | TY
+                | TZ
+                | CR
+                | CG
+                | CB
                 | D
 
-Element_And -> Element & Element
+element_and -> element & element
 
-Element_Or -> Element | Element
+element_or -> element | element
 
-Element_Power -> Element ^ Arith_Expr
+element_power -> element ^ arith_expr
 
-Element_Group -> [ Element ]
+element_group -> [ element ]
 
-Element_Optional -> < Element >
+element_optional -> < element >
 
-Arith_Expr -> Airth_Expr_Number
-            | Airth_Expr_Uplus
-            | Airth_Expr_Uminus
-            | Airth_Expr_Parenthesis
-            | Arith_Expr_Plus
-            | Airth_Expr_Minus
-            | Airth_Expr_Times
-            | Airth_Expr_Divide
+arith_expr -> airth_expr_number
+            | airth_expr_uplus
+            | airth_expr_uminus
+            | airth_expr_parenthesis
+            | arith_expr_plus
+            | airth_expr_minus
+            | airth_expr_times
+            | airth_expr_divide
 
-Arith_Expr_Number -> Number
+arith_expr_number -> number
 
-Arith_Expr_Uplus -> + Arith_Expr
+arith_expr_uplus -> + arith_expr
 
-Arith_Expr_Uminus -> - Arith_Expr
+arith_expr_uminus -> - arith_expr
 
-Arith_Expr_Times -> Arith_Expr * Airth_Expr
+arith_expr_times -> arith_expr * airth_expr
 
-Arith_Expr_Divide -> Airth_Expr / Airth_Expr
+arith_expr_divide -> airth_expr / airth_expr
 
-Empty
+empty
 
 \end{verbatim}
+
+Tokens
+
+\begin{itemize}
+\item UNDERSCORE (\_) $\to$ primitiva nula
+\item COLON (:) $\to$ inicio de transformación
+\item AND (\&), OR ($\vert$), POWER ($ ^\wedge $) $\to$ operaciones
+\item LGROUP ([), RGROUP (]) $\to$ agrupación de operaciones
+\item LOPT ($<$), ROPT ($>$) $\to$ operación opcional
+\item NUMBER $\to$ constantes numéricas
+\item PLUS (+), MIN (-), TIMES (*), DIVIDE (/) $\to$ operaciones aritméticas
+\item LPAREN ((), RPAREN ()) $\to$ agrupación de operaciones aritméticas
+\item START\_RULE (\$), RULE, EQUALS ($=$) $\to$ reglas
+\item DOT $\to$ regla final
+\item COMMENT $\to$ comentarios
+\item BOX, BALL $\to$ primitivas
+\item CYLINDER, CONE, TORUS $\to$ primitivas agregadas
+\item RX, RY, RZ $\to$ rotación
+\item SX, SY, RZ $\to$ traslación
+\item CR, CG, CB $\to$ color
+\item D $\to$ máxima profundidad
+\end{itemize}
 
 La gramática presentada presenta ambigüedad y proyecciones que pueden ser simplificadas. Se creó de esta manera para simplificar la implementación del parser.
 
@@ -228,7 +250,7 @@ Las reglas, utilizando los tokens y el tipo de asociatividad, de menor precedenc
 \section{Ejemplificación de árboles de derivación}
 
 
-Entrada:
+\textbf{Entrada:}
 
 \texttt{\$ = box : tx 1}
 
@@ -258,6 +280,91 @@ Entrada:
     !\qsetw{5cm}
     [.rules empty ]
 ]
+
+\textbf{Entrada:}
+
+\texttt{myrule = BALL}
+
+\texttt{\$ = myrule : s 2}
+
+Árbol de derivación:
+
+\hspace{-5cm}
+\Tree [
+  .rules
+    [.rule\_definition
+      {RULE\\(myrule)}
+      !\qsetw{-5cm}
+      EQUALS
+      [.element
+        BALL
+      ]
+    ]
+    [.rules
+    	[.rule\_definition
+    		{RULE\\(\$)}
+    		!\qsetw{-5cm}
+      		EQUALS
+      		[.element
+      			[.transform
+      				[.element
+      					!\qsetw{-5cm}
+      					{RULE\\(myrule)}
+      				]
+      				!\qsetw{-5cm}
+      				COLON
+      				!\qsetw{-5cm}
+      				[.transform\_name S ]
+      				[.arith\_expr
+            			[.arith\_expr\_number {NUMBER\\(2)} ]
+          			]
+      			]
+      		]
+    	]
+    !\qsetw{5cm}
+    [.rules empty ]
+    ]
+]
+
+\textbf{Entrada:}
+
+\texttt{\$ = box | ball | \$}
+
+Árbol de derivación:
+
+\hspace{-5cm}
+\Tree [
+  .rules
+    [.rule\_definition
+      {RULE\\(\$)}
+      !\qsetw{-5cm}
+      EQUALS
+      [.element
+        [.element\_or
+          [.element
+            [.primitive BOX ]
+          ]
+          OR
+          [.element
+          	[.element\_or
+          		[.element
+          			[.primitive BOX ]
+          		]
+          		OR
+          		[.element
+          			[.rule
+          				{RULE\\(\$)}
+          			]
+          		]
+          	]
+          ]
+        ]
+      ]
+    ]
+    !\qsetw{5cm}
+    [.rules empty ]
+]
+	
 
 \section{Modo de uso}
 
