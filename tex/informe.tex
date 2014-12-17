@@ -127,8 +127,13 @@ Petaccio, Lautaro José & 443/11 & lausuper@gmail.com\\
 
 
 \section{Introducción}
+Presentaremos en este informe, un intérprete encargado de procesar el lenguaje provisto por la cátedra y generar los renders tridimensionales asociados a este lenguaje.
+
+Utilizaremos la librería Ply, sobre la cuál definiremos la gramática para este lenguaje, para luego construir el lexer y el parser que completarán el funcionamiento del intérprete.
+
 
 \section{Especificación de la gramática}
+
 \begin{verbatim}
 Rules -> Rule_Definition Rules
        | Empty
@@ -202,6 +207,21 @@ Empty
 
 \end{verbatim}
 
+La gramática presentada presenta ambigüedad y proyecciones que pueden ser simplificadas. Se creó de esta manera para simplificar la implementación del parser.
+
+Se utilizó la librería Ply para asignar las reglas de precedencia y asociatividad, desambiguando la misma.
+
+Las reglas, utilizando los tokens y el tipo de asociatividad, de menor precedencia a mayor, son las siguientes:
+
+\begin{enumerate}
+\item Left $\to$ PLUS , MINUS
+\item Left $\to$ TIMEs, DIVIDE
+\item Right $\to$ UPLUS, UMINUS
+\item Right $\to$ AND
+\item Right $\to$ OR
+\item Right $\to$ POWER
+\item Right $\to$ COLON
+\end{enumerate}
 \section{Modo de uso}
 
 El programa admite como input, archivos con texto plano con las instrucciones para realizar el renderizado según el lenguaje.
