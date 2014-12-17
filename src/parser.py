@@ -49,10 +49,16 @@ class Parser:
   def p_primitive(self, t):
     '''primitive : BOX
                  | BALL
-                 | UNDERSCORE'''
-    primitives = {'box'  : scene.Box,
-                  'ball' : scene.Ball,
-                  '_'    : scene.Underscore}
+                 | UNDERSCORE
+                 | CYLINDER
+                 | CONE
+                 | TORUS'''
+    primitives = {'box'      : scene.Box,
+                  'ball'     : scene.Ball,
+                  '_'        : scene.Underscore,
+                  'cylinder' : scene.Cylinder,
+                  'cone'     : scene.Cone,
+                  'torus'    : scene.Torus}
     t[0] = primitives[t[1]](self.scene)
 
   def p_rule(self, t):
