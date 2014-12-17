@@ -171,7 +171,7 @@ class Parser:
     column = self.lexer.find_column(t)
     print 'Syntax error at line %d, column %d:' % (line, column)
     print self.input.split('\n')[line - 1]
-    print ' ' * (column - 1) + '↑'
+    print ' ' * (column - 1) + '^'
 
   def print_node(self, node, l=0):
     import sys
