@@ -65,6 +65,17 @@
 % Asigna la traducción de la palabra 'Appendices'.
 \renewcommand{\appendixtocname}{Apéndices}
 \renewcommand{\appendixpagename}{Apéndices}
+
+\newcommand{\grafico}[3]{
+  \begin{figure}[H]
+  	\centering
+    \includegraphics[height=10cm]{#1}
+    \caption{#2}
+    \label{#3}
+  \end{figure}
+}
+
+
 %%%%%%%%%% Miscelánea - Fin %%%%%%%%%%
 
 
@@ -364,7 +375,61 @@ Las reglas, utilizando los tokens y el tipo de asociatividad, de menor precedenc
     !\qsetw{5cm}
     [.rules empty ]
 ]
-	
+
+\section{Ejemplos de programas válidos e inválidos}
+
+\subsection{Programas válidos}
+
+\noindent
+Entrada:
+
+\begin{verbatim}
+balloon = ball:cg0:cb0:sx0.9:sz0.9                  "el globo"
+        & ball:cg0:cb0:s0.04:ty-0.52                "el nudo"
+        & box:cg0:cb0:s0.03:rz45:rx45:ty-0.56       "el pico"
+        & line:ty-0.56:d10                          "el hilo"
+
+line = box:sx0.01:sy0.1:sz0.01:ty-0.05 & [ line:rz10:ty-0.1 | line:rz-10:ty-0.1 ]
+
+$ = balloon
+
+\end{verbatim}
+
+\grafico{ejemplo23.png}{eg23.peg}{Ej1}
+
+
+\subsection{Programas inválidos}
+
+\noindent
+Entrada:
+\begin{verbatim}
+$ = ball : tx 2 : ts 1 : tl 2 : tz 1
+\end{verbatim}
+
+\noindent
+Salida:
+\begin{verbatim}
+Syntax error at line 1, column 19:
+$ = ball : tx 2 : ts 1 : tl 2 : tz 1
+                  ^
+\end{verbatim}
+Los tokens ts y tl son inválidos, el parser detecta que ts no es un token y muestra la posición del token erróneo.
+
+\noindent
+Entrada:
+\begin{verbatim}
+ejes = box:sy0.05:sz0.05:cg0:cb0:tx0.5
+$ = ejjjjes : tx 2
+\end{verbatim}
+
+\noindent
+Salida:
+\begin{verbatim}
+LookupError: Rule ejjjjes not found.
+\end{verbatim}
+
+La regla ejjjjes no produce un error gramatical, pero si ocurre un error a la hora de realizar el renderizado, la regla no se encuntra definida, entonces se levanta un error indicando el problema.
+
 
 \section{Modo de uso}
 
