@@ -156,7 +156,7 @@ Las cadenas representadas por cada token se corresponden con su nombre en minús
 \begin{tabular}{ll}
 \hline
 Token & Descripción\\
-\hline
+\hline\hline
 \texttt{BOX}, \texttt{BALL}                       & Primitivas\\
 \texttt{UNDERSCORE}                               & Primitiva vacía (carácter ``\_'')\\
 \texttt{CYLINDER}, \texttt{CONE}, \texttt{TORUS}  & Primitivas adicionales\\
@@ -185,119 +185,128 @@ Token & Descripción\\
 
 \subsection{Producciones}
 
+Las producciones a continuación están escritas en el formato consumido por la librería PLY.
+
+La producción inicial de esta gramática es \texttt{rules}.
+
+Notar que la producción \texttt{empty} no tiene cuerpo. Esto es porque, como su nombre señala, se corresponde con la producción vacía, comúnmente escrita $A \rightarrow \epsilon$ o $A \rightarrow \lambda$ en los libros de texto, y la librería PLY no provee ninguna sintaxis especial para tales producciones.
+
+Notar además que algunas producciones utilizan una sintaxis especial \texttt{\%proc}. Esta sintaxis se explica en la próxima sección.
+
 \begin{verbatim}
-rules -> rule_definition rules
-       | empty
+  rules : rule_definition rules
+        | empty
 
-rule_definition -> rule = element
-                 | rule .= element
-                 | $ = element
+  rule_definition : RULE       EQUALS element
+                  | RULE DOT   EQUALS element
+                  | START_RULE EQUALS element
 
-element -> primitive
-         | rule
-         | transform
-         | element_and
-         | element_or
-         | element_power
-         | element_group
-         | element_optional
+  element : primitive
+          | rule
+          | transform
+          | element_and
+          | element_or
+          | element_power
+          | element_group
+          | element_optional
 
-primitive -> BOX
-           | BALL
-           | UNDERSCORE
+  primitive : BOX
+            | BALL
+            | UNDERSCORE
+            | CYLINDER
+            | CONE
+            | TORUS
 
-rule -> RULE
+  rule : RULE
 
-transform -> element : transform_name arith_expr
+  transform : element COLON transform_name arith_expr
 
-transform_name -> RX
-                | RY
-                | RZ
-                | SX
-                | SY
-                | SZ
-                | S
-                | TX
-                | TY
-                | TZ
-                | CR
-                | CG
-                | CB
-                | D
+  transform_name : RX
+                 | RY
+                 | RZ
+                 | SX
+                 | SY
+                 | SZ
+                 | S
+                 | TX
+                 | TY
+                 | TZ
+                 | CR
+                 | CG
+                 | CB
+                 | D
 
-element_and -> element & element
+  element_and : element AND element
 
-element_or -> element | element
+  element_or : element OR element
 
-element_power -> element ^ arith_expr
+  element_power : element POWER arith_expr
 
-element_group -> [ element ]
+  element_group : LGROUP element RGROUP
 
-element_optional -> < element >
+  element_optional : LOPT element ROPT
 
-arith_expr -> airth_expr_number
-            | airth_expr_uplus
-            | airth_expr_uminus
-            | airth_expr_parenthesis
-            | arith_expr_plus
-            | airth_expr_minus
-            | airth_expr_times
-            | airth_expr_divide
+  arith_expr : arith_expr_number
+             | arith_expr_uplus
+             | arith_expr_uminus
+             | arith_expr_parenthesis
+             | arith_expr_plus
+             | arith_expr_minus
+             | arith_expr_times
+             | arith_expr_divide
 
-arith_expr_number -> number
+  arith_expr_number : NUMBER
 
-arith_expr_uplus -> + arith_expr
+  arith_expr_uplus : PLUS arith_expr %prec UPLUS
 
-arith_expr_uminus -> - arith_expr
+  arith_expr_uminus : MINUS arith_expr %prec UMINUS
 
-arith_expr_times -> arith_expr * airth_expr
+  arith_expr_parenthesis : LPAREN arith_expr RPAREN
 
-arith_expr_divide -> airth_expr / airth_expr
+  arith_expr_plus : arith_expr PLUS arith_expr
 
-empty
+  arith_expr_minus : arith_expr MINUS arith_expr
 
+  arith_expr_times : arith_expr TIMES arith_expr
+
+  arith_expr_divide : arith_expr DIVIDE arith_expr
+
+  empty :
 \end{verbatim}
 
-Tokens
 
-\begin{itemize}
-\item UNDERSCORE (\_) $\to$ primitiva nula
-\item COLON (:) $\to$ inicio de transformación
-\item AND (\&), OR ($\vert$), POWER ($ ^\wedge $) $\to$ operaciones
-\item LGROUP ([), RGROUP (]) $\to$ agrupación de operaciones
-\item LOPT ($<$), ROPT ($>$) $\to$ operación opcional
-\item NUMBER $\to$ constantes numéricas
-\item PLUS (+), MIN (-), TIMES (*), DIVIDE (/) $\to$ operaciones aritméticas
-\item LPAREN ((), RPAREN ()) $\to$ agrupación de operaciones aritméticas
-\item START\_RULE (\$), RULE, EQUALS ($=$) $\to$ reglas
-\item DOT $\to$ regla final
-\item COMMENT $\to$ comentarios
-\item BOX, BALL $\to$ primitivas
-\item CYLINDER, CONE, TORUS $\to$ primitivas agregadas
-\item RX, RY, RZ $\to$ rotación
-\item SX, SY, RZ $\to$ traslación
-\item CR, CG, CB $\to$ color
-\item D $\to$ máxima profundidad
-\end{itemize}
+\subsection{Órdenes de precedencia y asociatividades}
 
-La gramática presentada presenta ambigüedad y proyecciones que pueden ser simplificadas. Se creó de esta manera para simplificar la implementación del parser.
+Las ambiguedades en las producciones anteriores se resuelven con los órdenes de precedencia y asociatividades en la tabla a continuación.
 
-Se utilizó la librería Ply para asignar las reglas de precedencia y asociatividad, desambiguando la misma.
+Notar que la tabla incluye dos tokens ficticios \texttt{UPLUS} y \texttt{UMINUS}. Éstos se corresponden con los operadores unarios ``+'' y ``-'', que definen el signo de una expresión aritmética. Notar que tienen un orden de precedencia superior al de sus contrapartes binarios.
 
-Las reglas, utilizando los tokens y el tipo de asociatividad, de menor precedencia a mayor, son las siguientes:
+Estos tokens ficticios se referencian desde las producciones \texttt{arith\_expr\_uplus} y \texttt{arith\_expr\_uminus}, que usan los tokens \texttt{PLUS} y \texttt{MINUS}, respectivamente, pero que en el contexto de esas producciones particulares requieren un orden de precedencia distinto. La librería PLY provee un mecanismo para cambiar el orden de precedencia de un token en una producción: escribiendo \texttt{\%prec \textless{}TOKEN\textgreater} al final de una producción, el orden de precedencia del token usado en esa producción se reemplaza por el orden de precedencia del token \texttt{\textless{}TOKEN\textgreater} en ese contexto.
 
-\begin{enumerate}
-\item Left $\to$ PLUS , MINUS
-\item Left $\to$ TIMEs, DIVIDE
-\item Right $\to$ UPLUS, UMINUS
-\item Right $\to$ AND
-\item Right $\to$ OR
-\item Right $\to$ POWER
-\item Right $\to$ COLON
-\end{enumerate}
+
+\vspace{1em}
+\begin{tabular}{llll}
+  \hline
+  Orden & Token           & Asociatividad & Comentarios\\
+  \hline\hline
+  1     & \texttt{PLUS}   & Izquierda     & Operadores aritméticos binarios\\
+  1     & \texttt{MINUS}  & Izquierda     &\\
+  2     & \texttt{TIMES}  & Izquierda     &\\
+  2     & \texttt{DIVIDE} & Izquierda     &\\
+  \hline
+  3     & \texttt{UPLUS}  & Derecha       & Operadores aritméticos unarios\\
+  3     & \texttt{UMINUS} & Derecha       &\\
+  \hline
+  4     & \texttt{AND}    & Izquierda     & Operadores binarios sobre elementos\\
+  5     & \texttt{OR}     & Izquierda     &\\
+  \hline
+  6     & \texttt{POWER}  & Izquierda     & Operadores unarios sobre elementos\\
+  7     & \texttt{COLON}  & Izquierda     &\\
+  \hline
+\end{tabular}
+
 
 \section{Ejemplificación de árboles de derivación}
-
 
 \textbf{Entrada:}
 
@@ -350,26 +359,26 @@ Las reglas, utilizando los tokens y el tipo de asociatividad, de menor precedenc
       ]
     ]
     [.rules
-    	[.rule\_definition
-    		{RULE\\(\$)}
-    		!\qsetw{-5cm}
-      		EQUALS
-      		[.element
-      			[.transform
-      				[.element
-      					!\qsetw{-5cm}
-      					{RULE\\(myrule)}
-      				]
-      				!\qsetw{-5cm}
-      				COLON
-      				!\qsetw{-5cm}
-      				[.transform\_name S ]
-      				[.arith\_expr
-            			[.arith\_expr\_number {NUMBER\\(2)} ]
-          			]
-      			]
-      		]
-    	]
+      [.rule\_definition
+        {RULE\\(\$)}
+        !\qsetw{-5cm}
+          EQUALS
+          [.element
+            [.transform
+              [.element
+                !\qsetw{-5cm}
+                {RULE\\(myrule)}
+              ]
+              !\qsetw{-5cm}
+              COLON
+              !\qsetw{-5cm}
+              [.transform\_name S ]
+              [.arith\_expr
+                  [.arith\_expr\_number {NUMBER\\(2)} ]
+                ]
+            ]
+          ]
+      ]
     !\qsetw{5cm}
     [.rules empty ]
     ]
@@ -395,17 +404,17 @@ Las reglas, utilizando los tokens y el tipo de asociatividad, de menor precedenc
           ]
           OR
           [.element
-          	[.element\_or
-          		[.element
-          			[.primitive BOX ]
-          		]
-          		OR
-          		[.element
-          			[.rule
-          				{RULE\\(\$)}
-          			]
-          		]
-          	]
+            [.element\_or
+              [.element
+                [.primitive BOX ]
+              ]
+              OR
+              [.element
+                [.rule
+                  {RULE\\(\$)}
+                ]
+              ]
+            ]
           ]
         ]
       ]
