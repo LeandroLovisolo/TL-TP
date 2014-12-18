@@ -145,6 +145,8 @@ En este trabajo desarrollamos un visualizador para el formato de síntesis proce
 
 A continuación detallamos primero los tokens reconocidos por el lexer y luego las producciones reconocidas por el parser.
 
+El formato PEGS fue extendido con tres nuevas primitivas: cylinder, cone y torus, que dibujan un cilindro de base y diámetro 1, un cono de base y altura 1 y un toro de diametro exterior 1, respectivamente.
+
 
 \subsection{Tokens}
 
@@ -281,6 +283,8 @@ Las ambiguedades en las producciones anteriores se resuelven con los órdenes de
 Notar que la tabla incluye dos tokens ficticios \texttt{UPLUS} y \texttt{UMINUS}. Éstos se corresponden con los operadores unarios ``+'' y ``-'', que definen el signo de una expresión aritmética. Notar que tienen un orden de precedencia superior al de sus contrapartes binarios.
 
 Estos tokens ficticios se referencian desde las producciones \texttt{arith\_expr\_uplus} y \texttt{arith\_expr\_uminus}, que usan los tokens \texttt{PLUS} y \texttt{MINUS}, respectivamente, pero que en el contexto de esas producciones particulares requieren un orden de precedencia distinto. La librería PLY provee un mecanismo para cambiar el orden de precedencia de un token en una producción: escribiendo \texttt{\%prec \textless{}TOKEN\textgreater} al final de una producción, el orden de precedencia del token usado en esa producción se reemplaza por el orden de precedencia del token \texttt{\textless{}TOKEN\textgreater} en ese contexto.
+
+Se decidió darle un mayor orden de precedencia al token \texttt{POWER} por sobre los tokens \texttt{AND} y \texttt{OR}. Dicha precedencia no estaba clara en la especificación del lenguaje, y decidimos desambiguarlo guiados por nuestro gusto.
 
 
 \vspace{1em}
