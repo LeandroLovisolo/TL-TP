@@ -306,6 +306,88 @@ Estos tokens ficticios se referencian desde las producciones \texttt{arith\_expr
 \end{tabular}
 
 
+\section{Implementación}
+
+La ejecución del programa se divide en dos fases: parsing de la entrada y rendering de la escena. Explicamos ambas a continuación.
+
+
+\subsection{Parsing}
+
+Durante esta fase se ejecuta el parser generado con la librería PLY y se arma una instancia de la clase \texttt{Scene}, que captura la semántica de la entrada del programa.
+
+\texttt{Scene} tiene una variable de instancia \texttt{Scene::rules} que mantiene un arreglo de instancias de la clase \texttt{Rule} o alguna de sus subclases. Este arreglo tiene un item por cada regla definida en la entrada. Por ejemplo, la entrada a continuación genera un arreglo \texttt{Scene::rules} con 4 items:
+
+\begin{verbatim}
+a  = box  & a : tx 1
+a  = ball & a : tx 1
+a. = box : cg 0
+$  = a : d 10
+\end{verbatim}
+
+Las reglas iniciales y finales corresponden a las subclases \texttt{StartRule} y \texttt{FinalRule}. El resto a la clase \texttt{Rule}.
+
+Cada regla se modela mediante un árbol de parsing con exactamente la misma estructura reconocida por el parser. Cada nodo de este árbol se representa con una instancia de alguna subclase de \texttt{Node}, definida de la siguiente manera:
+
+\begin{verbatim}
+  class Node:
+    def __init__(self, scene):
+      self.scene = scene
+      self.children = []
+    ...
+\end{verbatim}
+
+Notar que la clase \texttt{Rule} es subclase de \texttt{Node}. En consecuencia, cada instancia de \texttt{Rule} en el arreglo \texttt{Scene::rules} es el nodo raíz del árbol de parsing de alguna regla definida en la entrada.
+
+Existe aproximadamente una subclase de \texttt{Node} por cada producción en la gramática. Por ejemplo, las producciones \texttt{element\_and} y \texttt{element\_or} se corresponden con las subclases \texttt{And} y \texttt{Or}, respectivamente.
+
+La librería PLY permite asociar acciones semánticas a cada producción. Por ejemplo, la producción \texttt{arith\_expr\_number} está asociada a la siguiente función:
+
+\begin{verbatim}
+  def p_arith_expr_number(self, t):
+    'arith_expr_number : NUMBER'
+    t[0] = scene.Number(self.scene, t[1])
+\end{verbatim}
+
+Esta función asocia al resultado de reconocer esta producción (\texttt{t[0]}) una instancia de la clase \texttt{Number} (subclase de \texttt{Node}) que recibe el valor numérico del token \texttt{NUMBER} (\texttt{t[1]}).
+
+De forma similar, la producción \texttt{arith\_expr\_plus} está asociada a la siguiente función:
+
+\begin{verbatim}
+  def p_arith_expr_plus(self, t):
+    'arith_expr_plus : arith_expr PLUS arith_expr'
+    t[0] = scene.Plus(self.scene, t[1], t[3])
+\end{verbatim}
+
+Notar que el lado derecho de esta producción incluye nodos no terminales. En este caso, los contenidos de \texttt{t[1]} y \texttt{t[3]} serán instancias de subclases de \texttt{Node} creadas por el código asociado a producciones \texttt{arith\_expr}. La función termina asignándole a \texttt{t[0]} una instancia de \texttt{Plus}, subclase de \texttt{Node}, que tiene como hijos a las dos instancias de \texttt{Node} resultantes de los nodos no terminales.
+
+El resto de los nodos de un árbol de parsing de una regla cuaqluiera se instancian de forma similar.
+
+A continuación se muestra una entrada de ejemplo \texttt{eg09.peg}:
+
+\begin{verbatim}
+  $ = box:tx -1 & ball:tx 1
+\end{verbatim}
+
+Y su correspondiente árbol de parsing, obtenido pasándole el parámetro \texttt{-p} al comando \texttt{pegv}:
+
+\begin{verbatim}
+Rule "$"
+  And
+    TX
+      Box
+      UMinus
+        Number "1.0"
+    TX
+      Ball
+      Number "1.0"
+\end{verbatim}
+
+
+\subsection{Rendering}
+
+Pendiente.
+
+
 \section{Ejemplificación de árboles de derivación}
 
 \textbf{Entrada:}
