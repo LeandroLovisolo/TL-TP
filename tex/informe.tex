@@ -22,9 +22,6 @@
 \usepackage{qtree}
 \usepackage[toc, page]{appendix}
 
-\usepackage{tikz}
-\usetikzlibrary{shapes.geometric, arrows}
-
 
 %%%%%%%%%% Constantes - Inicio %%%%%%%%%%
 \newcommand{\titulo}{Trabajo Práctico}
@@ -135,6 +132,47 @@ Utilizaremos la librería Ply, sobre la cuál definiremos la gramática para est
 
 
 \section{Especificación de la gramática}
+
+A continuación detallamos primero los tokens reconocidos por el lexer y luego las producciones reconocidas por el parser.
+
+
+\subsection{Tokens}
+
+Las cadenas representadas por cada token se corresponden con su nombre en minúscula salvo especificado lo contrario.
+
+
+\vspace{1em}
+\begin{tabular}{ll}
+\hline
+Token & Descripción\\
+\hline
+\texttt{BOX}, \texttt{BALL}                       & Primitivas\\
+\texttt{UNDERSCORE}                               & Primitiva vacía (carácter ``\_'')\\
+\texttt{CYLINDER}, \texttt{CONE}, \texttt{TORUS}  & Primitivas adicionales\\
+\texttt{RX}, \texttt{RY}, \texttt{RZ}             & Transformaciones de rotación\\
+\texttt{SX}, \texttt{SY}, \texttt{SZ}, \texttt{S} & Transformaciones de escala\\
+\texttt{TX}, \texttt{TY}, \texttt{TZ}             & Transformaciones de traslación\\
+\texttt{CR}, \texttt{CG}, \texttt{CB}             & Transformaciones de coloreo\\
+\texttt{D}                                        & Transformación de límite de profundidad de recursión\\
+\texttt{COLON}                                    & Inicio de una transformaciín (carácter ``:'')\\
+\texttt{AND}, \texttt{OR}                         & Operaciones de conjunción y disyunción (caracteres ``\&'' y ``\textbar'')\\
+\texttt{POWER}                                    & Operación de potenciación (carácter ``\^{}'')\\
+\texttt{LGROUP}, \texttt{RGROUP}                  & Agrupación de operaciones (caracteres ``['' y ``]'')\\
+\texttt{LOPT}, \texttt{ROPT}                      & Operación opcional (caracteres ``\textless'' y ``\textgreater'')\\
+\texttt{NUMBER}                                   & Constante numérica (expresión regular \texttt{[0-9]+(\textbackslash.[0-9]+)?})\\
+\texttt{PLUS}, \texttt{MINUS},
+\texttt{TIMES}, \texttt{DIVIDE}                   & Operadores aritméticos binarios (caracteres ``+'', ``-'', ``*'' y ``/'')\\
+\texttt{LPAREN}, \texttt{RPAREN}                  & Agrupación de operaciones aritméticas (caracteres ``('' y ``)'')\\
+\texttt{START\_RULE}                               & Regla inicial (carácter ``\$'')\\
+\texttt{RULE}                                     & Regla (expresión regular \texttt{[a-zA-Z]+})\\
+\texttt{DOT}                                      & Regla final (carácter ``.'')\\
+\texttt{EQUALS}                                   & Declaración de regla (carácter ``='')\\
+\texttt{COMMENT}                                  & Comentario (expresión regular \texttt{"([\^{}\textbackslash\textbackslash\textbackslash{}n]|(\textbackslash\textbackslash.))*"})\\
+\hline
+\end{tabular}
+
+
+\subsection{Producciones}
 
 \begin{verbatim}
 Rules -> Rule_Definition Rules
