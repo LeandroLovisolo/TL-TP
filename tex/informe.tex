@@ -390,7 +390,7 @@ Cada objeto tiene atributos posición, rotación y escala, todos sobre los ejes 
 
 Todas las subclases de \texttt{Node} (instanciadas en la fase de parsing) implementan un método \texttt{render()} que devuelve un objeto de Panda3D resultante de realizar la acción correspondiente a ése nodo. Por ejemplo, el método \texttt{Box::render()} devuelve un objeto de Panda3D correspondiente a un cubo de lado 1 centrado en el origen.
 
-Un objeto de Panda3D devuelto por el método \texttt{render()} de una subclase de \texttt{Node} siempre está centrado en el origen. Esto facilita la aplicación de transformaciones sucesivas sin tener que calcular manualmente matrices de transformaciones.
+Un objeto de Panda3D devuelto por el método \texttt{render()} de una subclase de \texttt{Node} siempre está centrado en el origen. Esto facilita la aplicación de transformaciones sucesivas sin tener que calcular manualmente los atributos de los objetos hijos afectados.
 
 En el caso que una instancia de \texttt{Node} tenga nodos hijos, al invocarse su método \texttt{render()}, ésta a su vez puede invocar al método \texttt{render()} de sus nodos hijos y/o crea un nuevo objeto de Panda3D. Este nuevo objeto de Panda3D puede o no tener como hijos a los objetos de Panda3D obtenidos de invocar al método \texttt{render()} de los nodos hijos. Algunos ejemplos:
 
