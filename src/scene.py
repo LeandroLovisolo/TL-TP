@@ -102,6 +102,9 @@ class Node:
   def __getitem__(self, index):
     return self.children[index]
 
+  def __str__(self):
+    return self.__class__.__name__
+
   def render(self):
     raise NotImplementedError()
 
@@ -116,7 +119,7 @@ class Rule(Node):
     self.children.append(element)
 
   def __str__(self):
-    return self.name
+    return 'Rule "%s"' % self.name
 
   def render(self):
     return self.children[0].render()
@@ -144,7 +147,7 @@ class Number(ArithExpr):
     return self._value
 
   def __str__(self):
-    return str(self._value)
+    return 'Number "%s"' % str(self._value)
 
 class UnaryOp(ArithExpr):
   def __init__(self, scene, child):
@@ -245,7 +248,7 @@ class RuleElement(Element):
     self.name = name
 
   def __str__(self):
-    return self.name
+    return 'RuleElement "%s"' % self.name
 
   def render(self):
     # Get per-rule recursion limit and current depth
