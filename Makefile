@@ -2,7 +2,7 @@ BUNDLE       = TL-TP.tar.gz
 BUNDLE_DIR   = TL-TP
 BUNDLE_FILES = src tex ejemplos pegv Makefile README.md enunciado.pdf informe.pdf
 
-PARSER_FILES = src/parser.out src/parsetab.py
+PARSER_FILES = parser.out parsetab.py src/parser.out src/parsetab.py
 
 .PHONY: all informe.pdf clean clean-tex bundle
 
