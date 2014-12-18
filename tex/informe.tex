@@ -414,11 +414,13 @@ La subclase \texttt{Power} logra el efecto deseado creando nuevas instancias fan
 Finalmente, la escena entera se renderea invocando el método \texttt{Scene::do\_render()}, que simplemente obtiene la regla inicial ``\$'' e invoca su método \texttt{render()}.
 
 
-\section{Ejemplificación de árboles de derivación}
+\section{Ejemplos de árboles de derivación}
 
-\textbf{Entrada:}
+Entrada:
 
-\texttt{\$ = box : tx 1}
+\begin{verbatim}
+  $ = box : tx 1
+\end{verbatim}
 
 Árbol de derivación:
 
@@ -447,11 +449,14 @@ Finalmente, la escena entera se renderea invocando el método \texttt{Scene::do\
     [.rules empty ]
 ]
 
-\textbf{Entrada:}
+\vspace{1em}
 
-\texttt{myrule = BALL}
+Entrada:
 
-\texttt{\$ = myrule : s 2}
+\begin{verbatim}
+  a = BALL
+  $ = a : s 2
+\end{verbatim}
 
 Árbol de derivación:
 
@@ -459,42 +464,42 @@ Finalmente, la escena entera se renderea invocando el método \texttt{Scene::do\
 \Tree [
   .rules
     [.rule\_definition
-      {RULE\\(myrule)}
-      !\qsetw{-5cm}
+      {RULE\\(a)}
       EQUALS
-      [.element
-        BALL
-      ]
+      [.element BALL ]
     ]
     [.rules
       [.rule\_definition
         {RULE\\(\$)}
-        !\qsetw{-5cm}
-          EQUALS
-          [.element
-            [.transform
-              [.element
-                !\qsetw{-5cm}
-                {RULE\\(myrule)}
-              ]
-              !\qsetw{-5cm}
-              COLON
-              !\qsetw{-5cm}
-              [.transform\_name S ]
-              [.arith\_expr
-                  [.arith\_expr\_number {NUMBER\\(2)} ]
-                ]
+        !\qsetw{-8cm}
+        EQUALS
+        !\qsetw{-8cm}
+        [.element
+          [.transform
+            [.element
+              {RULE\\(a)}
+            ]
+            !\qsetw{-20cm}
+            COLON
+            [.transform\_name S ]
+            [.arith\_expr
+              [.arith\_expr\_number {NUMBER\\(2)} ]
             ]
           ]
+        ]
       ]
-    !\qsetw{5cm}
-    [.rules empty ]
+      !\qsetw{5cm}
+      [.rules empty ]
     ]
 ]
 
-\textbf{Entrada:}
+\vspace{1em}
 
-\texttt{\$ = box | ball | \$}
+Entrada:
+
+\begin{verbatim}
+  $ = box | ball | _
+\end{verbatim}
 
 Árbol de derivación:
 
@@ -505,12 +510,9 @@ Finalmente, la escena entera se renderea invocando el método \texttt{Scene::do\
       {RULE\\(\$)}
       !\qsetw{-5cm}
       EQUALS
+      !\qsetw{-5cm}
       [.element
         [.element\_or
-          [.element
-            [.primitive BOX ]
-          ]
-          OR
           [.element
             [.element\_or
               [.element
@@ -518,11 +520,13 @@ Finalmente, la escena entera se renderea invocando el método \texttt{Scene::do\
               ]
               OR
               [.element
-                [.rule
-                  {RULE\\(\$)}
-                ]
+                [.primitive BALL ]
               ]
             ]
+          ]
+          OR
+          [.element
+            [.primitive UNDERSCORE ]
           ]
         ]
       ]
