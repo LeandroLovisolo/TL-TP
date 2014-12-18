@@ -68,7 +68,7 @@ class Lexer:
   t_EQUALS         = r'='
 
   # Comentarios
-  t_ignore_COMMENT = r'\"([^\\\n]|(\\.))*?\"'
+  t_ignore_COMMENT = r'\"([^\\\n]|(\\.))*\"'
 
   # Caracteres ignorados
   t_ignore     = ' \t\n'
