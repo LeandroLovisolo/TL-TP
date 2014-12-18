@@ -63,13 +63,10 @@
 \renewcommand{\appendixtocname}{Apéndices}
 \renewcommand{\appendixpagename}{Apéndices}
 
-\newcommand{\grafico}[3]{
-  \begin{figure}[H]
-  	\centering
+\newcommand{\grafico}[1]{
+  \begin{center}
     \includegraphics[height=10cm]{#1}
-    \caption{#2}
-    \label{#3}
-  \end{figure}
+  \end{center}
 }
 
 
@@ -145,7 +142,7 @@ En este trabajo desarrollamos un visualizador para el formato de síntesis proce
 
 A continuación detallamos primero los tokens reconocidos por el lexer y luego las producciones reconocidas por el parser.
 
-El formato PEGS fue extendido con tres nuevas primitivas: cylinder, cone y torus, que dibujan un cilindro de base y diámetro 1, un cono de base y altura 1 y un toro de diametro exterior 1, respectivamente.
+El formato PEGS fue extendido con tres nuevas primitivas: \texttt{cylinder}, \texttt{cone} y \texttt{torus}, que producen un cilindro de base y diámetro 1, un cono de base y altura 1 y un toro de diametro exterior 1, respectivamente.
 
 
 \subsection{Tokens}
@@ -554,7 +551,7 @@ Entrada:
 
 Resultado:
 
-\grafico{dickbutt.png}{dickbutt.peg}{dickbutt}
+\grafico{dickbutt.png}
 
 
 \subsection{Globo}
@@ -565,7 +562,7 @@ Entrada:
 
 Resultado:
 
-\grafico{ejemplo23.png}{eg23.peg}{eg23}
+\grafico{ejemplo23.png}
 
 
 \subsection{Programa inválido 1}

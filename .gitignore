@@ -9,8 +9,9 @@
 *.aux
 *.log
 *.out
+*.txt
 *.pdf
 
 # Parser
-src/parsetab.py
-src/parser.out
+parsetab.py
+parser.out
