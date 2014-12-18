@@ -137,9 +137,8 @@ Petaccio, Lautaro José & 443/11 & lausuper@gmail.com\\
 
 
 \section{Introducción}
-Presentaremos en este informe, un intérprete encargado de procesar el lenguaje provisto por la cátedra y generar los renders tridimensionales asociados a este lenguaje.
 
-Utilizaremos la librería Ply, sobre la cuál definiremos la gramática para este lenguaje, para luego construir el lexer y el parser que completarán el funcionamiento del intérprete.
+En este trabajo desarrollamos un visualizador para el formato de síntesis procedural PEGS, creado por el cuerpo docente de la materia Teoría de Lenguajes de nuestra facultad.
 
 
 \section{Especificación de la gramática}
@@ -407,11 +406,11 @@ El resto de las subclases de \texttt{Node} actúan de forma similar.
 
 Dos subclases de \texttt{Node} particulares que valen la pena aclarar son \texttt{RuleElement} y \texttt{Power}.
 
-La subclase \texttt{RuleElement} modifica la instancia de \texttt{Scene} agregándole estado sobre la regla que se está rendereando actualmente y el nivel de recursión actual (ver el diccionario \texttt{Scene::perRuleDepths}.) Además, en el caso de una llamada recursiva, decide si llamar a una regla general o a una regla final de acuerdo a si se alcanzó el límite de recursión particular para esa regla o global.
+La subclase \texttt{RuleElement} modifica la instancia de \texttt{Scene} agregándole estado sobre la regla que se está renderizando actualmente y el nivel de recursión actual (ver el diccionario \texttt{Scene::perRuleDepths}.) Además, en el caso de una llamada recursiva, decide si llamar a una regla general o a una regla final de acuerdo a si se alcanzó el límite de recursión particular para esa regla o global.
 
-La subclase \texttt{Power} logra el efecto deseado creando nuevas instancias fantasma de \texttt{Power} con menor potencia, aplicándoles a dichas instancias fantasma las transformaciones requeridas y rendereando el nuevo nodo fantasma.
+La subclase \texttt{Power} logra el efecto deseado creando nuevas instancias fantasma de \texttt{Power} con menor potencia, aplicándoles a dichas instancias fantasma las transformaciones requeridas y renderizando el nuevo nodo fantasma.
 
-Finalmente, la escena entera se renderea invocando el método \texttt{Scene::do\_render()}, que simplemente obtiene la regla inicial ``\$'' e invoca su método \texttt{render()}.
+Finalmente, la escena entera se renderiza invocando el método \texttt{Scene::do\_render()}, que simplemente obtiene la regla inicial ``\$'' e invoca su método \texttt{render()}.
 
 
 \section{Ejemplos de árboles de derivación}
@@ -535,103 +534,119 @@ Entrada:
     [.rules empty ]
 ]
 
-\section{Ejemplos de programas válidos e inválidos}
 
-\subsection{Programas válidos}
+\section{Ejemplos}
 
-\noindent
+Presentamos a continuación algunos ejemplos que ilustran la salida del visualizador.
+
+
+\subsection{Dick Butt}
+
+(Ver \url{http://knowyourmeme.com/memes/dick-butt}.)
+
+Entrada:
+
+\verbatiminput{../ejemplos/dickbutt.peg}
+
+Resultado:
+
+\grafico{dickbutt.png}{dickbutt.peg}{dickbutt}
+
+
+\subsection{Globo}
+
+Entrada:
+
+\verbatiminput{../ejemplos/eg23.peg}
+
+Resultado:
+
+\grafico{ejemplo23.png}{eg23.peg}{eg23}
+
+
+\subsection{Programa inválido 1}
+
 Entrada:
 
 \begin{verbatim}
-balloon = ball:cg0:cb0:sx0.9:sz0.9                  "el globo"
-        & ball:cg0:cb0:s0.04:ty-0.52                "el nudo"
-        & box:cg0:cb0:s0.03:rz45:rx45:ty-0.56       "el pico"
-        & line:ty-0.56:d10                          "el hilo"
-
-line = box:sx0.01:sy0.1:sz0.01:ty-0.05 & [ line:rz10:ty-0.1 | line:rz-10:ty-0.1 ]
-
-$ = balloon
-
+  $ = ball : ts 1
 \end{verbatim}
 
-\grafico{ejemplo23.png}{eg23.peg}{Ej1}
-
-
-\subsection{Programas inválidos}
-
-\noindent
-Entrada:
-\begin{verbatim}
-$ = ball : tx 2 : ts 1 : tl 2 : tz 1
-\end{verbatim}
-
-\noindent
 Salida:
-\begin{verbatim}
-Syntax error at line 1, column 19:
-$ = ball : tx 2 : ts 1 : tl 2 : tz 1
-                  ^
-\end{verbatim}
-Los tokens ts y tl son inválidos, el parser detecta que ts no es un token y muestra la posición del token erróneo.
 
-\noindent
+\begin{verbatim}
+  Syntax error at line 1, column 12:
+  $ = ball : ts 1
+             ^
+\end{verbatim}
+
+El token \texttt{ts} es inválido. El parser detecta esto y reporta correctamente el error.
+
+
+\subsection{Programa inválido 2}
+
 Entrada:
+
 \begin{verbatim}
-ejes = box:sy0.05:sz0.05:cg0:cb0:tx0.5
-$ = ejjjjes : tx 2
+  ejes = box:sy0.05:sz0.05:cg0:cb0:tx0.5
+  $ = ojos : tx 2
 \end{verbatim}
 
-\noindent
 Salida:
+
 \begin{verbatim}
-LookupError: Rule ejjjjes not found.
+  LookupError: Rule ojos not found.
 \end{verbatim}
 
-La regla ejjjjes no produce un error gramatical, pero si ocurre un error a la hora de realizar el renderizado, la regla no se encuntra definida, entonces se levanta un error indicando el problema.
+La entrada es correcta desde el punto de vista gramatical, sin embargo se hace referencia a una regla que no existe. El visualizador reporta dicho error y termina la ejecución.
+
+
+\section{Requerimientos}
+
+\begin{itemize}
+  \item Python 2.7
+  \item Librería PLY (\url{http://www.dabeaz.com/ply/})
+  \item Librería Panda3D (\url{https://www.panda3d.org/})
+\end{itemize}
 
 
 \section{Modo de uso}
 
-El programa admite como input, archivos con texto plano con las instrucciones para realizar el renderizado según el lenguaje.
+Ejecutar \texttt{./pegv <archivo>} en el directorio raíz, reemplazando \texttt{<archivo>} por la ruta a algún archivo en formato PEGS. Ejemplo: \texttt{./pegv ejemplos/eg01.peg}.
 
-Puede ejecutarse en la carpeta /src mediante el comando \verb+python2 main.py input_file.peg+
+Alternativamente proveer el código a interpretar por la entrada estándar. Por ejemplo: \texttt{cat ejemplos/eg01.peg | ./pegv}
 
-\section{Requerimientos}
-Se requiere la utilización de Python 2.7 para la ejecución del programa.
+Opcionalmente puede imprimirse cada regla reconocida y su respectivo árbol de parsing con la opción \texttt{-p}, por ejemplo: \texttt{./pegv -p ejemplos/eg01.peg}.
 
-Son necesarias además, las siguientes bibliotecas:
-\begin{itemize}
-\item Panda3D para el renderizado gráfico, descargable de https://www.panda3d.org/
-\item Ply para el lado del parsing, descargable de http://www.dabeaz.com/ply/
-\end{itemize}
 
-El código del programa se encuentra en /src y debe ser ejecutado desde main.py
+\section{Código fuente}
 
-\section{Código}
 
-\subsection{Main}
+\subsection{main.py}
 
 \begin{small}
-\verbatiminput{../src/main.py}
+  \verbatiminput{../src/main.py}
 \end{small}
 
 
-\subsection{Lexer}
+\subsection{lexer.py}
 
 \begin{small}
-\verbatiminput{../src/lexer.py}
+  \verbatiminput{../src/lexer.py}
 \end{small}
 
-\subsection{Parser}
+
+\subsection{parser.py}
 
 \begin{small}
-\verbatiminput{../src/parser.py}
+  \verbatiminput{../src/parser.py}
 \end{small}
 
-\subsection{Scene}
+
+\subsection{scene.py}
 
 \begin{small}
-\verbatiminput{../src/scene.py}
+  \verbatiminput{../src/scene.py}
 \end{small}
 
 
