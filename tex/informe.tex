@@ -385,7 +385,33 @@ Rule "$"
 
 \subsection{Rendering}
 
-Pendiente.
+El rendering de la escena se hace por medio de la librería Panda3D. Ésta mantiene su propio árbol de objetos visibles en una escena.
+
+Cada objeto tiene atributos posición, rotación y escala, todos sobre los ejes X, Y y Z. A su vez, un objeto puede tener subobjetos. Todos los atributos de un objeto hijo son relativos a los del objeto padre. De esta forma, basta con modificar los atributos de un objeto padre para afectar a los objetos hijos de la forma esperada intuitivamente.
+
+Todas las subclases de \texttt{Node} (instanciadas en la fase de parsing) implementan un método \texttt{render()} que devuelve un objeto de Panda3D resultante de realizar la acción correspondiente a ése nodo. Por ejemplo, el método \texttt{Box::render()} devuelve un objeto de Panda3D correspondiente a un cubo de lado 1 centrado en el origen.
+
+Un objeto de Panda3D devuelto por el método \texttt{render()} de una subclase de \texttt{Node} siempre está centrado en el origen. Esto facilita la aplicación de transformaciones sucesivas sin tener que calcular manualmente matrices de transformaciones.
+
+En el caso que una instancia de \texttt{Node} tenga nodos hijos, al invocarse su método \texttt{render()}, ésta a su vez puede invocar al método \texttt{render()} de sus nodos hijos y/o crea un nuevo objeto de Panda3D. Este nuevo objeto de Panda3D puede o no tener como hijos a los objetos de Panda3D obtenidos de invocar al método \texttt{render()} de los nodos hijos. Algunos ejemplos:
+
+\begin{itemize}
+  \item Una instancia de \texttt{RZ}, correspondiente a rotar su nodo hijo sobre el eje Z, al invocarse su método \texttt{render()}, primero obtiene un objeto de Panda3D resultante de invocar al método \texttt{render()} de su nodo hijo, luego modifica su atributo rotación sobre el eje Z y devuelve dicho objeto.
+
+  \item Una instancia de \texttt{TX}, correspondiente a modificar la posición sobre el eje X de su nodo hijo, al invocarse su método \texttt{render()}, primero crea un nuevo objeto de Panda3D inicialmente vacío, luego le agrega como hijo al objeto de Panda3D obtenido de invocar al método \texttt{render()} de su nodo hijo, modifica la posición del objeto hijo sobre el eje X y devuelve el objeto padre.
+
+  \item Una instancia de \texttt{And}, al invocarse su método \texttt{render()}, crea un nuevo objeto de Panda3D inicialmente vacío, al que le agrega como hijos los objetos de Panda3D resultantes de invocar al método \texttt{render()} de sus dos nodos hijos.
+\end{itemize}
+
+El resto de las subclases de \texttt{Node} actúan de forma similar.
+
+Dos subclases de \texttt{Node} particulares que valen la pena aclarar son \texttt{RuleElement} y \texttt{Power}.
+
+La subclase \texttt{RuleElement} modifica la instancia de \texttt{Scene} agregándole estado sobre la regla que se está rendereando actualmente y el nivel de recursión actual (ver el diccionario \texttt{Scene::perRuleDepths}.) Además, en el caso de una llamada recursiva, decide si llamar a una regla general o a una regla final de acuerdo a si se alcanzó el límite de recursión particular para esa regla o global.
+
+La subclase \texttt{Power} logra el efecto deseado creando nuevas instancias fantasma de \texttt{Power} con menor potencia, aplicándoles a dichas instancias fantasma las transformaciones requeridas y rendereando el nuevo nodo fantasma.
+
+Finalmente, la escena entera se renderea invocando el método \texttt{Scene::do\_render()}, que simplemente obtiene la regla inicial ``\$'' e invoca su método \texttt{render()}.
 
 
 \section{Ejemplificación de árboles de derivación}
