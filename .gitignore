@@ -1,17 +1,20 @@
+# LaTeX
+tex/*.aux
+tex/*.log
+tex/*.out
+tex/*.txt
+tex/*.pdf
+
+# Parser
+parsetab.py
+parser.out
+
+# Bundle
+*.tar.gz
+
 # Python
 *.pyc
 
 # Vim
 *.swp
 *.vim
-
-# LaTeX
-*.aux
-*.log
-*.out
-*.txt
-*.pdf
-
-# Parser
-parsetab.py
-parser.out
